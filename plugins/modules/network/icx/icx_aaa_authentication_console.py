@@ -122,17 +122,17 @@ def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None,
             else:
                 cmd = "aaa authentication enable default {}".format(enable['method_list'])
             if enable['method_list1'] is not None:
-                cmd+= " {}".format(enable['method_list1'])
+                cmd+= "{}".format(enable['method_list1'])
                 if enable['method_list2'] is not None:
-                    cmd+= " {}".format(enable['method_list2'])
+                    cmd+= "{}".format(enable['method_list2'])
                     if enable['method_list3'] is not None:
-                        cmd+= " {}".format(enable['method_list3'])
+                        cmd+= "{}".format(enable['method_list3'])
                         if enable['method_list4'] is not None:
-                            cmd+= " {}".format(enable['method_list4'])
+                            cmd+= "{}".format(enable['method_list4'])
                             if enable['method_list5'] is not None:
-                                cmd+= " {}".format(enable['method_list5'])
+                                cmd+= "{}".format(enable['method_list5'])
                                 if enable['method_list6'] is not None:
-                                    cmd+= " {}".format(enable['method_list6'])
+                                    cmd+= "{}".format(enable['method_list6'])
         cmds.append(cmd)
         if enable['implicit_user'] is not None:
             if enable['state'] == 'absent':
@@ -146,17 +146,17 @@ def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None,
         else:
             cmd = "aaa authentication login default {}".format(login['method_list'])
         if login['method_list1'] is not None:
-            cmd+= " {}".format(login['method_list1'])
+            cmd+= "{}".format(login['method_list1'])
             if login['method_list2'] is not None:
-                cmd+= " {}".format(login['method_list2'])
+                cmd+= "{}".format(login['method_list2'])
                 if login['method_list3'] is not None:
-                    cmd+= " {}".format(login['method_list3'])
+                    cmd+= "{}".format(login['method_list3'])
                     if login['method_list4'] is not None:
-                       cmd+= " {}".format(login['method_list4'])
+                       cmd+= "{}".format(login['method_list4'])
                        if login['method_list5'] is not None:
-                            cmd+= " {}".format(login['method_list5'])
+                            cmd+= "{}".format(login['method_list5'])
                             if login['method_list6'] is not None:
-                               cmd+= " {}".format(login['method_list6'])    
+                               cmd+= "{}".format(login['method_list6'])    
         cmds.append(cmd)
         if login['privilage_mode'] is not None:
             if login['state'] == 'absent':
@@ -170,17 +170,17 @@ def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None,
         else:
             cmd = "aaa authentication snmp-server default {}".format(snmp_server['method_list'])   
         if web_server['method_list1'] is not None:
-            cmd+= " {}".format(snmp_server['method_list1'])
+            cmd+= "{}".format(snmp_server['method_list1'])
             if web_server['method_list2'] is not None:
-                cmd+= " {}".format(snmp_server['method_list2'])
+                cmd+= "{}".format(snmp_server['method_list2'])
                 if web_server['method_list3'] is not None:
-                    cmd+= " {}".format(snmp_server['method_list3'])
+                    cmd+= "{}".format(snmp_server['method_list3'])
                     if web_server['method_list4'] is not None:
-                        cmd+= " {}".format(snmp_server['method_list4'])
+                        cmd+= "{}".format(snmp_server['method_list4'])
                         if web_server['method_list5'] is not None:
-                            cmd+= " {}".format(snmp_server['method_list5'])
+                            cmd+= "{}".format(snmp_server['method_list5'])
                             if web_server['method_list6'] is not None:
-                                cmd+= " {}".format(snmp_server['method_list6'])
+                                cmd+= "{}".format(snmp_server['method_list6'])
         cmds.append(cmd)
 
     if web_server is not None:
@@ -189,17 +189,17 @@ def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None,
         else:
             cmd = "aaa authentication web-server default {}".format(web_server['method_list'])      
         if web_server['method_list1'] is not None:
-            cmd+= " {}".format(web_server['method_list1'])
+            cmd+= "{}".format(web_server['method_list1'])
             if web_server['method_list2'] is not None:
-                cmd+= " {}".format(web_server['method_list2'])
+                cmd+= "{}".format(web_server['method_list2'])
                 if web_server['method_list3'] is not None:
-                    cmd+= " {}".format(web_server['method_list3'])
+                    cmd+= "{}".format(web_server['method_list3'])
                     if web_server['method_list4'] is not None:
-                        cmd+= " {}".format(web_server['method_list4'])
+                        cmd+= "{}".format(web_server['method_list4'])
                         if web_server['method_list5'] is not None:
-                            cmd+= " {}".format(web_server['method_list5'])
+                            cmd+= "{}".format(web_server['method_list5'])
                             if web_server['method_list6'] is not None:
-                                cmd+= " {}".format(web_server['method_list6'])
+                                cmd+= "{}".format(web_server['method_list6'])
         cmds.append(cmd)   
 
     return cmds
