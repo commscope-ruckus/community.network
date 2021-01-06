@@ -1,3 +1,7 @@
+#!/usr/bin/python
+# Copyright: Ansible Project
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
@@ -25,6 +29,7 @@ options:
         primary_method:
           description: primary authentication method.
           type: string
+          required: true
           choices: ['radius','none']
         backup_method1:
           description: backup authentication method if primary method fails.
@@ -41,7 +46,8 @@ options:
       suboptions:
         method_list:
           description: Configures following authentication methods. You can configure up to six backup authentication methods.
-          type: list      
+          type: list 
+          required: true     
           choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
         implicit_user:
           description: Configures the device to prompt only for a password when a user attempts to gain Super User access to the Privileged EXEC and global configuration levels of the CLI.
@@ -58,6 +64,7 @@ options:
         method_list:
           description: Configures following authentication methods. You can configure up to six backup authentication methods.
           type: list
+          required: true
           choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
         privilege_mode: 
           description: Configures the device to enter the privileged EXEC mode after a successful login through Telnet or SSH..       
@@ -74,6 +81,7 @@ options:
         method_list:
           description: Configures following authentication methods. You can configure up to six backup authentication methods.
           type: list
+          required: true
           choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
         state:
           description: Specifies whether to configure or remove the authentication method.
@@ -87,6 +95,7 @@ options:
         method_list:
           description: Configures following authentication methods. You can configure up to six backup authentication methods.
           type: list
+          required: true
           choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
         state:
           description: Specifies whether to configure or remove the authentication method.
@@ -94,8 +103,28 @@ options:
           default: present
           choices: ['present', 'absent']
 """
+
+EXAMPLES = """
+
+- name: aaa authentication commands for dot1x and enable
+  community.network.icx_aaa_authentication_console:
+    dot1x:
+      primary_method: none
+      state: present
+    enable:
+      method_list: local
+      method_list1: radius
+      state: present
+- name: aaa authentication commands for snmp_server
+  community.network.icx_aaa_authentication_console:
+    system:
+      method_list: local
+      method_list1: radius
+      method_list2: none
+      state: absent
+"""
 from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ansible.module_utils.connection import ConnectionError
+from ansible.module_utils.connection import ConnectionError,exec_command
 from ansible_collections.community.network.plugins.module_utils.network.icx.icx import load_config
 
 def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None, web_server=None):
@@ -116,29 +145,28 @@ def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None,
         cmds.append(cmd)
 
     if enable is not None:
-        if enable['method_list'] is not None:
-            if enable['state'] == 'absent':
-                cmd = "no aaa authentication enable default {}".format(enable['method_list'])
-            else:
-                cmd = "aaa authentication enable default {}".format(enable['method_list'])
-            if enable['method_list1'] is not None:
-                cmd+= "{}".format(enable['method_list1'])
-                if enable['method_list2'] is not None:
-                    cmd+= "{}".format(enable['method_list2'])
-                    if enable['method_list3'] is not None:
-                        cmd+= "{}".format(enable['method_list3'])
-                        if enable['method_list4'] is not None:
-                            cmd+= "{}".format(enable['method_list4'])
-                            if enable['method_list5'] is not None:
-                                cmd+= "{}".format(enable['method_list5'])
-                                if enable['method_list6'] is not None:
-                                    cmd+= "{}".format(enable['method_list6'])
+        if enable['state'] == 'absent':
+            cmd = "no aaa authentication enable default {}".format(enable['method_list'])
+        else:
+            cmd = "aaa authentication enable default {}".format(enable['method_list'])
+        if enable['method_list1'] is not None:
+            cmd+= " {}".format(enable['method_list1'])
+            if enable['method_list2'] is not None:
+                cmd+= " {}".format(enable['method_list2'])
+                if enable['method_list3'] is not None:
+                    cmd+= " {}".format(enable['method_list3'])
+                    if enable['method_list4'] is not None:
+                        cmd+= " {}".format(enable['method_list4'])
+                        if enable['method_list5'] is not None:
+                            cmd+= " {}".format(enable['method_list5'])
+                            if enable['method_list6'] is not None:
+                                cmd+= " {}".format(enable['method_list6'])
         cmds.append(cmd)
         if enable['implicit_user'] is not None:
             if enable['state'] == 'absent':
-                cmd = "no aaa authentication enable implicit-user"
+               cmd = "no aaa authentication enable implicit-user"
             else:
-                cmd = "aaa authentication enable implicit-user"
+               cmd = "aaa authentication enable implicit-user"
 
     if login is not None:
         if login['state'] == 'absent':
@@ -146,17 +174,17 @@ def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None,
         else:
             cmd = "aaa authentication login default {}".format(login['method_list'])
         if login['method_list1'] is not None:
-            cmd+= "{}".format(login['method_list1'])
+            cmd+= " {}".format(login['method_list1'])
             if login['method_list2'] is not None:
-                cmd+= "{}".format(login['method_list2'])
+                cmd+= " {}".format(login['method_list2'])
                 if login['method_list3'] is not None:
-                    cmd+= "{}".format(login['method_list3'])
+                    cmd+= " {}".format(login['method_list3'])
                     if login['method_list4'] is not None:
-                       cmd+= "{}".format(login['method_list4'])
+                       cmd+= " {}".format(login['method_list4'])
                        if login['method_list5'] is not None:
-                            cmd+= "{}".format(login['method_list5'])
+                            cmd+= " {}".format(login['method_list5'])
                             if login['method_list6'] is not None:
-                               cmd+= "{}".format(login['method_list6'])    
+                               cmd+= " {}".format(login['method_list6'])    
         cmds.append(cmd)
         if login['privilage_mode'] is not None:
             if login['state'] == 'absent':
@@ -169,18 +197,18 @@ def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None,
             cmd = "no aaa authentication snmp-server default {}".format(snmp_server['method_list'])
         else:
             cmd = "aaa authentication snmp-server default {}".format(snmp_server['method_list'])   
-        if web_server['method_list1'] is not None:
-            cmd+= "{}".format(snmp_server['method_list1'])
-            if web_server['method_list2'] is not None:
-                cmd+= "{}".format(snmp_server['method_list2'])
-                if web_server['method_list3'] is not None:
-                    cmd+= "{}".format(snmp_server['method_list3'])
-                    if web_server['method_list4'] is not None:
-                        cmd+= "{}".format(snmp_server['method_list4'])
-                        if web_server['method_list5'] is not None:
-                            cmd+= "{}".format(snmp_server['method_list5'])
-                            if web_server['method_list6'] is not None:
-                                cmd+= "{}".format(snmp_server['method_list6'])
+        if snmp_server['method_list1'] is not None:
+            cmd+= " {}".format(snmp_server['method_list1'])
+            if snmp_server['method_list2'] is not None:
+                cmd+= " {}".format(snmp_server['method_list2'])
+                if snmp_server['method_list3'] is not None:
+                    cmd+= " {}".format(snmp_server['method_list3'])
+                    if snmp_server['method_list4'] is not None:
+                        cmd+= " {}".format(snmp_server['method_list4'])
+                        if snmp_server['method_list5'] is not None:
+                            cmd+= " {}".format(snmp_server['method_list5'])
+                            if snmp_server['method_list6'] is not None:
+                                cmd+= " {}".format(snmp_server['method_list6'])
         cmds.append(cmd)
 
     if web_server is not None:
@@ -189,17 +217,17 @@ def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None,
         else:
             cmd = "aaa authentication web-server default {}".format(web_server['method_list'])      
         if web_server['method_list1'] is not None:
-            cmd+= "{}".format(web_server['method_list1'])
+            cmd+= " {}".format(web_server['method_list1'])
             if web_server['method_list2'] is not None:
-                cmd+= "{}".format(web_server['method_list2'])
+                cmd+= " {}".format(web_server['method_list2'])
                 if web_server['method_list3'] is not None:
-                    cmd+= "{}".format(web_server['method_list3'])
+                    cmd+= " {}".format(web_server['method_list3'])
                     if web_server['method_list4'] is not None:
-                        cmd+= "{}".format(web_server['method_list4'])
+                        cmd+= " {}".format(web_server['method_list4'])
                         if web_server['method_list5'] is not None:
-                            cmd+= "{}".format(web_server['method_list5'])
+                            cmd+= " {}".format(web_server['method_list5'])
                             if web_server['method_list6'] is not None:
-                                cmd+= "{}".format(web_server['method_list6'])
+                                cmd+= " {}".format(web_server['method_list6'])
         cmds.append(cmd)   
 
     return cmds
@@ -208,50 +236,50 @@ def main():
     """entry point for module execution
     """ 
     dot1x_spec = dict(
-        primary_method=dict(type='str', choices=['radius','none']),
+        primary_method=dict(type='str', required=True, choices=['radius','none']),
         backup_method1=dict(type='str', choices=['none']),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     enable_spec = dict(
-        method_list=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
+        method_list=dict(type='str', required=True, choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list1=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list2=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list3=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list4=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list5=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
-        method_list6=dict(type='str', choices=['none']),
+        method_list6=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         implicit_user=dict(type='None'),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     login_spec = dict(
-       method_list=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
+        method_list=dict(type='str', required=True, choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list1=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list2=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list3=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list4=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list5=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
-        method_list6=dict(type='str', choices=['none']),
+        method_list6=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         privilage_mode=dict(type='None'),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     snmp_server_spec = dict(
-        method_list=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
+        method_list=dict(type='str', required=True, choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list1=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list2=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list3=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list4=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list5=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
-        method_list6=dict(type='str', choices=['none']),
+        method_list6=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     web_server_spec = dict(
-        method_list=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
+        method_list=dict(type='str', required=True, choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list1=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list2=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list3=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list4=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list5=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']), 
-        method_list6=dict(type='str', choices=['none']),
+        method_list6=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     argument_spec = dict(
@@ -277,13 +305,12 @@ def main():
 
     if warnings:
         result['warnings'] = warnings 
-    commands = [build_command(module, dot1x, enable, login, snmp_server, web_server )]
+    commands = build_command(module, dot1x, enable, login, snmp_server, web_server )
     results['commands'] = commands
 
     if commands:
         if not module.check_mode:
-            for cmd in results['commands']:
-                response = load_config(module, cmd)
+                response = load_config(module, commands)
         results['changed'] = True
 
     module.exit_json(**results)
