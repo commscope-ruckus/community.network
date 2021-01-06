@@ -44,7 +44,7 @@ class TestICXAaaAuthenticationModule(TestICXModule):
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)
         
-    def test_icx_aaa_accounting_all_option_backup(self):
+    def test_icx_aaa_authentication_all_option_backup(self):
         ''' Test for successful aaa authentication with backup_method options'''
         set_module_args(dict(dot1x=dict(primary_method='radius',backup_method1='none'),
                              enable=dict(method_list='enable',method_list1='line'),
@@ -74,7 +74,7 @@ class TestICXAaaAuthenticationModule(TestICXModule):
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)
     
-    def test_icx_aaa_accounting_all_option_backup_remove(self):
+    def test_icx_aaa_authentication_all_option_backup_remove(self):
         ''' Test for removing aaa authentication with backup_method options'''
         set_module_args(dict(dot1x=dict(primary_method='radius',backup_method1='none',state='absent'),
                              enable=dict(method_list='enable',method_list1='line',state='absent'),
