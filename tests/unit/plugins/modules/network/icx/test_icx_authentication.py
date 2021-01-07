@@ -38,7 +38,9 @@ class TestICXAaaAuthenticationModule(TestICXModule):
                              web_server=dict(method_list='enable',method_list1='line',method_list2='local',method_list3='none' ,method_list4='radius',method_list5='tacacs',method_list6='tacacs+')))
         expected_commands = ['aaa authentication dot1x default radius none',
                              'aaa authentication enable default enable line local none radius tacacs tacacs+',
+                             'aaa authentication enable implicit-user',
                              'aaa authentication login default enable line local none radius tacacs tacacs+',
+                             'aaa authentication login privilage-mode',
                              'aaa authentication snmp-server default enable line local none radius tacacs tacacs+',
                              'aaa authentication web-server default enable line local none radius tacacs tacacs+']
         result = self.execute_module(changed=True)
@@ -53,7 +55,9 @@ class TestICXAaaAuthenticationModule(TestICXModule):
                              web_server=dict(method_list='enable',method_list1='line')))
         expected_commands = ['aaa authentication dot1x default radius none',
                              'aaa authentication enable default enable line',
+                             'aaa authentication enable implicit-user',
                              'aaa authentication login default enable line',
+                             'aaa authentication login privilage-mode',
                              'aaa authentication snmp-server default enable line',
                              'aaa authentication web-server default enable line']
         result = self.execute_module(changed=True)
@@ -68,7 +72,9 @@ class TestICXAaaAuthenticationModule(TestICXModule):
                              web_server=dict(method_list='enable',method_list1='line',method_list2='local',method_list3='none' ,method_list4='radius',method_list5='tacacs',method_list6='tacacs+',state='absent')))
         expected_commands = ['no aaa authentication dot1x default radius none',
                              'no aaa authentication enable default enable line local none radius tacacs tacacs+',
+                             'no aaa authentication enable implicit-user',
                              'no aaa authentication login default enable line local none radius tacacs tacacs+',
+                             'no aaa authentication login privilage-mode',
                              'no aaa authentication snmp-server default enable line local none radius tacacs tacacs+',
                              'no aaa authentication web-server default enable line local none radius tacacs tacacs+']
         result = self.execute_module(changed=True)
@@ -83,7 +89,9 @@ class TestICXAaaAuthenticationModule(TestICXModule):
                              web_server=dict(method_list='enable',method_list1='line',state='absent')))
         expected_commands = ['no aaa authentication dot1x default radius none',
                              'no aaa authentication enable default enable line',
+                             'no aaa authentication enable implicit-user',
                              'no aaa authentication login default enable line',
+                             'no aaa authentication login privilage-mode',
                              'no aaa authentication snmp-server default enable line',
                              'no aaa authentication web-server default enable line']
         result = self.execute_module(changed=True)
@@ -92,7 +100,7 @@ class TestICXAaaAuthenticationModule(TestICXModule):
     def test_icx_aaa_authentication_dot1x_enable(self):
         ''' Test for successful aaa authentication for dot1x'''
         set_module_args(dict(dot1x=dict(primary_method='radius',state='present'),enable=dict(method_list='enable',state='present')))
-        expected_commands = ['aaa authentication dot1x default radius','aaa authentication enable default enable']
+        expected_commands = ['aaa authentication dot1x default radius','aaa authentication enable default enable', 'aaa authentication enable implicit-user']
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)
     
@@ -100,7 +108,7 @@ class TestICXAaaAuthenticationModule(TestICXModule):
     def test_icx_aaa_authentication_login_snmp_server(self):
         ''' Test for successful aaa authentication for login and snmp_server'''
         set_module_args(dict(login=dict(method_list='line',state='present'),snmp_server=dict(method_list='enable',state='present')))
-        expected_commands = ['aaa authentication login default line','aaa authentication snmp-server default enable']
+        expected_commands = ['aaa authentication login default line','aaa authentication login privilage-mode','aaa authentication snmp-server default enable']
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)
 

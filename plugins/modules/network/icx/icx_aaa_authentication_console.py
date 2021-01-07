@@ -51,7 +51,8 @@ options:
           choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
         implicit_user:
           description: Configures the device to prompt only for a password when a user attempts to gain Super User access to the Privileged EXEC and global configuration levels of the CLI.
-          type: None
+          type: bool
+          default: true
         state:
           description: Specifies whether to configure or remove the authentication method.
           type: str   
@@ -68,7 +69,8 @@ options:
           choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
         privilege_mode: 
           description: Configures the device to enter the privileged EXEC mode after a successful login through Telnet or SSH..       
-          type: None      
+          type: bool
+          default: true      
         state:
           description: Specifies whether to configure or remove the authentication method.
           type: str
@@ -145,52 +147,56 @@ def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None,
         cmds.append(cmd)
 
     if enable is not None:
-        if enable['state'] == 'absent':
-            cmd = "no aaa authentication enable default {}".format(enable['method_list'])
-        else:
-            cmd = "aaa authentication enable default {}".format(enable['method_list'])
-        if enable['method_list1'] is not None:
-            cmd+= " {}".format(enable['method_list1'])
-            if enable['method_list2'] is not None:
-                cmd+= " {}".format(enable['method_list2'])
-                if enable['method_list3'] is not None:
-                    cmd+= " {}".format(enable['method_list3'])
-                    if enable['method_list4'] is not None:
-                        cmd+= " {}".format(enable['method_list4'])
-                        if enable['method_list5'] is not None:
-                            cmd+= " {}".format(enable['method_list5'])
-                            if enable['method_list6'] is not None:
-                                cmd+= " {}".format(enable['method_list6'])
-        cmds.append(cmd)
+        if enable['method_list'] is not None:
+            if enable['state'] == 'absent':
+                cmd = "no aaa authentication enable default {}".format(enable['method_list'])
+            else:
+                cmd = "aaa authentication enable default {}".format(enable['method_list'])
+            if enable['method_list1'] is not None:
+                cmd+= " {}".format(enable['method_list1'])
+                if enable['method_list2'] is not None:
+                    cmd+= " {}".format(enable['method_list2'])
+                    if enable['method_list3'] is not None:
+                        cmd+= " {}".format(enable['method_list3'])
+                        if enable['method_list4'] is not None:
+                            cmd+= " {}".format(enable['method_list4'])
+                            if enable['method_list5'] is not None:
+                                cmd+= " {}".format(enable['method_list5'])
+                                if enable['method_list6'] is not None:
+                                    cmd+= " {}".format(enable['method_list6'])
+            cmds.append(cmd)
         if enable['implicit_user'] is not None:
             if enable['state'] == 'absent':
                cmd = "no aaa authentication enable implicit-user"
             else:
                cmd = "aaa authentication enable implicit-user"
+            cmds.append(cmd)
 
     if login is not None:
-        if login['state'] == 'absent':
-            cmd = "no aaa authentication login default {}".format(login['method_list'])
-        else:
-            cmd = "aaa authentication login default {}".format(login['method_list'])
-        if login['method_list1'] is not None:
-            cmd+= " {}".format(login['method_list1'])
-            if login['method_list2'] is not None:
-                cmd+= " {}".format(login['method_list2'])
-                if login['method_list3'] is not None:
-                    cmd+= " {}".format(login['method_list3'])
-                    if login['method_list4'] is not None:
-                       cmd+= " {}".format(login['method_list4'])
-                       if login['method_list5'] is not None:
-                            cmd+= " {}".format(login['method_list5'])
-                            if login['method_list6'] is not None:
-                               cmd+= " {}".format(login['method_list6'])    
-        cmds.append(cmd)
+        if login['method_list'] is not None:
+            if login['state'] == 'absent':
+                cmd = "no aaa authentication login default {}".format(login['method_list'])
+            else:
+                cmd = "aaa authentication login default {}".format(login['method_list'])
+            if login['method_list1'] is not None:
+                cmd+= " {}".format(login['method_list1'])
+                if login['method_list2'] is not None:
+                    cmd+= " {}".format(login['method_list2'])
+                    if login['method_list3'] is not None:
+                        cmd+= " {}".format(login['method_list3'])
+                        if login['method_list4'] is not None:
+                          cmd+= " {}".format(login['method_list4'])
+                          if login['method_list5'] is not None:
+                                cmd+= " {}".format(login['method_list5'])
+                                if login['method_list6'] is not None:
+                                  cmd+= " {}".format(login['method_list6'])    
+            cmds.append(cmd)
         if login['privilage_mode'] is not None:
             if login['state'] == 'absent':
                cmd = "no aaa authentication login privilage-mode"
             else:
                cmd = "aaa authentication login privilage-mode" 
+            cmds.append(cmd)
 
     if snmp_server is not None:
         if snmp_server['state'] == 'absent':
@@ -241,14 +247,14 @@ def main():
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     enable_spec = dict(
-        method_list=dict(type='str', required=True, choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
+        method_list=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list1=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list2=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list3=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list4=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list5=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list6=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
-        implicit_user=dict(type='None'),
+        implicit_user=dict(type='bool', default=True),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     login_spec = dict(
@@ -259,7 +265,7 @@ def main():
         method_list4=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list5=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         method_list6=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
-        privilage_mode=dict(type='None'),
+        privilage_mode=dict(type='bool', default=True),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     snmp_server_spec = dict(
