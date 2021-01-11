@@ -8,7 +8,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: icx_aaa_authorization_console
+module: icx_aaa_authorization
 version_added: "2.10"
 author: "Ruckus Wireless (@Commscope)"
 short_description: Configures AAA authorization in Ruckus ICX 7000 series switches.
@@ -17,7 +17,7 @@ description:
 notes:
 	- Tested against ICX 10.1
 options:
-    enable_console:
+    coa_enable:
         description: Enables RADIUS Change of Authorization (CoA).
         suboptions:
             state:
@@ -32,7 +32,7 @@ options:
                 description: Specifies which message request to ignore.
                 choices:  ['disable-port ','dm-request', 'flip-port', 'modify-acl', 'reauth-host']
                 required: true
-                type: string
+                type: str
             state:
                 description: Specifies whether to configure or remove authorization.
                 type: str
@@ -48,16 +48,16 @@ options:
                 choices: [0,4,5]
             primary_method:
                 description: primary authorization method.
-                type: string
+                type: str
                 required: true
                 choices: ['radius','tacacs+','none']
             backup_method1:
                 description: backup authorization method if primary method fails.
-                type: string
+                type: str
                 choices: ['radius','tacacs+','none']
             backup_method2:
                 description: bacup authorization method if primary and backup1 methods fail.
-                type: string
+                type: str
                 choices: ['none']
             state:
                 description: Specifies whether to configure or remove authorization.
@@ -69,16 +69,16 @@ options:
         suboptions:
             primary_method:
                 description: primary authorization method.
-                type: string
+                type: str
                 required:true
                 choices: ['radius','tacacs+','none']
             backup_method1:
                 description: backup authorization method if primary method fails.
-                type: string
+                type: str
                 choices: ['radius','tacacs+','none']
             backup_method2:
                 description: bacup authorization method if primary and backup1 methods fail.
-                type: string
+                type: str
                 choices: ['none']
             state:
                 description: Specifies whether to configure or remove authorization.
@@ -91,26 +91,26 @@ from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.connection import ConnectionError,exec_command
 from ansible_collections.community.network.plugins.module_utils.network.icx.icx import load_config
 
-def build_command(module, coa_ignore=None, enable_console=None, commands=None, exec_=None):
+def build_command(module, coa_enable=None, coa_ignore=None, commands=None, exec_=None):
     """
     Function to build the command to send to the terminal for the switch
     to execute. All args come from the module's unique params.
     """
     cmds= [] 
-    if coa_ignore is not None:
-        if coa_ignore['state'] == 'absent':
-            cmd = "no aaa authorization coa ignore {}".format(coa_ignore['request'])      
-        else:
-            cmd = "aaa authorization coa ignore {}".format(coa_ignore['request'])  
-        cmds.append(cmd) 
-    
-    if enable_console is not None:
-        if enable_console['state'] == 'absent':
+
+    if coa_enable is not None:
+        if coa_enable['state'] == 'absent':
             cmd = "no aaa authorization coa enable"
         else:
             cmd = "aaa authorization coa enable"
         cmds.append(cmd)
 
+    if coa_ignore is not None:
+        if coa_ignore['state'] == 'absent':
+            cmd = "no aaa authorization coa ignore {}".format(coa_ignore['request'])      
+        else:
+            cmd = "aaa authorization coa ignore {}".format(coa_ignore['request'])  
+        cmds.append(cmd)        
 
     if commands is not None:
         if commands['state'] == 'absent':
@@ -147,12 +147,12 @@ def main():
     """entry point for module execution
     """
 
+    coa_enable_spec = dict(
+        state=dict(type='str', default='present', choices=['present', 'absent'])
+    )
     coa_ignore_spec = dict(
         state=dict(type='str', default='present', choices=['present', 'absent']),
         request=dict(type='str',required=True, choices=['disable-port', 'dm-request', 'flip-port' ,'modify-acl' , 'reauth-host'])
-    )
-    enable_spec = dict(
-        state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     commands_spec = dict(
         privilege_level=dict(type='int', required=True, choices=[0,4,5]),
@@ -169,27 +169,27 @@ def main():
     )
     argument_spec = dict(
         coa_ignore = dict(type='dict', options=coa_ignore_spec),
-        enable_console = dict(type='dict', options=enable_spec),
+        coa_enable = dict(type='dict', options=coa_enable_spec),
         commands = dict(type='dict', options=commands_spec),
         exec_ = dict(type='dict', options=exec_spec)
     )
 
-    required_one_of = [['coa_ignore', 'enable_console', 'commands', 'exec_']]
+    required_one_of = [['coa_enable', 'coa_ignore', 'commands', 'exec_']]
     module = AnsibleModule(argument_spec=argument_spec,
                            required_one_of=required_one_of,
                            supports_check_mode=True)
 
     warnings = list()
     results = {'changed': False}
+    coa_enable = module.params["coa_enable"]
     coa_ignore = module.params["coa_ignore"]
-    enable_console = module.params["enable_console"]
     commands = module.params["commands"]
     exec_ = module.params["exec_"]
 
     if warnings:
         results['warnings'] = warnings
 
-    commands = build_command(module, coa_ignore, enable_console, commands, exec_)
+    commands = build_command(module, coa_enable, coa_ignore, commands, exec_)
     results['commands'] = commands
 
     if commands:
