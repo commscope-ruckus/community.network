@@ -13,7 +13,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = """
 ---
-module: icx_aaa_authentication_console
+module: icx_aaa_authentication
 version_added: "2.10"
 author: Ruckus Wireless (@Commscope)
 short_description: Configures AAA authentication in Ruckus ICX 7000 series switches

@@ -10,7 +10,7 @@ from .icx_module import TestICXModule, load_fixture
 
 
 class TestICXAaaAuthenticationModule(TestICXModule):
-    ''' Class used for Unit Tests agains icx_aaa_authentication_console module '''
+    ''' Class used for Unit Tests agains icx_aaa_authentication module '''
     module = icx_aaa_authentication
 
     def setUp(self):
