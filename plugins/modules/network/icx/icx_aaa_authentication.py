@@ -47,11 +47,11 @@ options:
         primary_method:
           description: primary authentication method.
           type: str     
-          choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
+          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
         backup_method_list:
           description: backup authentication method if primary method fails.
           type: list
-          choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
+          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
         implicit_user:
           description: Configures the device to prompt only for a password when a user attempts to gain Super User access to the Privileged EXEC and global configuration levels of the CLI.
           type: bool
@@ -68,11 +68,11 @@ options:
         primary_method:
           description: primary authentication method.
           type: str     
-          choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
+          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
         backup_method_list:
           description: backup authentication method if primary method fails.
           type: list
-          choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
+          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
         privilege_mode: 
           description: Configures the device to enter the privileged EXEC mode after a successful login through Telnet or SSH..       
           type: bool
@@ -89,11 +89,11 @@ options:
         primary_method:
           description: primary authentication method.
           type: str     
-          choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
+          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
         backup_method_list:
           description: backup authentication method if primary method fails.
           type: list
-          choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
+          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
         state:
           description: Specifies whether to configure or remove the authentication method.
           type: str
@@ -106,11 +106,11 @@ options:
         primary_method:
           description: primary authentication method.
           type: str     
-          choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
+          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
         backup_method_list:
           description: backup authentication method if primary method fails.
           type: list
-          choices: ['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']
+          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
         state:
           description: Specifies whether to configure or remove the authentication method.
           type: str
@@ -146,13 +146,13 @@ def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None,
                 cmd = "aaa authentication enable default {}".format(enable['primary_method'])
             if enable['backup_method_list'] is not None:
                 cmd+=" "+" ".join(enable['backup_method_list'])                  
-        cmds.append(cmd)
-        if enable['implicit_user'] is not None:
+            cmds.append(cmd)
+        elif enable['implicit_user'] is not None:
             if enable['state'] == 'absent':
                cmd = "no aaa authentication enable implicit-user"
             else:
                cmd = "aaa authentication enable implicit-user"
-        cmds.append(cmd)
+            cmds.append(cmd)
 
     if login is not None:
         if login['primary_method'] is not None:
@@ -162,13 +162,13 @@ def build_command(module, dot1x=None, enable=None, login=None, snmp_server=None,
                 cmd = "aaa authentication login default {}".format(login['primary_method'])
             if login['backup_method_list'] is not None:
                 cmd+= " "+" ".join(login['backup_method_list'])  
-        cmds.append(cmd)
-        if login['privilege_mode'] is not None:
+            cmds.append(cmd)
+        elif login['privilege_mode'] is not None:
             if login['state'] == 'absent':
                cmd = "no aaa authentication login privilege-mode"
             else:
                cmd = "aaa authentication login privilege-mode" 
-        cmds.append(cmd)
+            cmds.append(cmd)
 
     if snmp_server is not None:
         if snmp_server['state'] == 'absent':
@@ -199,25 +199,25 @@ def main():
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     enable_spec = dict(
-        primary_method=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
+        primary_method=dict(type='str', choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
         backup_method_list=dict(type='list', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
         implicit_user=dict(type='bool', default=False),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     login_spec = dict(
-        primary_method=dict(type='str', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
-        backup_method_list=dict(type='list', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
+        primary_method=dict(type='str', choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
+        backup_method_list=dict(type='list', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+', 'none']),
         privilege_mode=dict(type='bool', default=False),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     snmp_server_spec = dict(
-        primary_method=dict(type='str', required=True, choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
-        backup_method_list=dict(type='list', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
+        primary_method=dict(type='str', required=True, choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
+        backup_method_list=dict(type='list', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+', 'none']),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     web_server_spec = dict(
-        primary_method=dict(type='str', required=True, choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
-        backup_method_list=dict(type='list', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
+        primary_method=dict(type='str', required=True, choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
+        backup_method_list=dict(type='list', choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     argument_spec = dict(
