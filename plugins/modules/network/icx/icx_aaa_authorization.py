@@ -9,82 +9,101 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: icx_aaa_authorization
-version_added: "2.10"
 author: "Ruckus Wireless (@Commscope)"
 short_description: Configures AAA authorization in Ruckus ICX 7000 series switches.
 description:
-	- Configures AAA authorization in Ruckus ICX 7000 series switches.
+ - Configures AAA authorization in Ruckus ICX 7000 series switches.
 notes:
-	- Tested against ICX 10.1
+ - Tested against ICX 10.1
 options:
+  coa_enable:
+    description: Enables RADIUS Change of Authorization (CoA).
+    type: dict
+    suboptions:
+      state:
+        description: Specifies whether to configure or remove authorization.
+        type: str
+        default: present
+        choices: ['present', 'absent']
+  coa_ignore:
+    description: Discards the specified RADIUS Change of Authorization (CoA) messages.
+    type: dict
+    suboptions:
+      request:
+        description: Specifies which message request to ignore.
+        required: true
+        type: str
+        choices: ['disable-port', 'dm-request', 'flip-port', 'modify-acl', 'reauth-host']
+      state:
+        description: Specifies whether to configure or remove authorization.
+        type: str
+        default: present
+        choices: ['present', 'absent']
+  commands:
+    description: Configures the AAA authorization configuration parameters for EXEC commands.
+    type: dict
+    suboptions:
+      privilege_level:
+        description: Configures the device to perform AAA authorization for the commands available at the specified privilege level. Valid values are 0,4 and 5.
+        type: int
+        required: true
+        choices: [0,4,5]
+      primary_method:
+        description: Primary authorization method.
+        type: str
+        required: true
+        choices: ['radius', 'tacacs+', 'none']
+      backup_method1:
+        description: Backup authorization method if primary method fails.
+        type: str
+        choices: ['radius', 'tacacs+', 'none']
+      backup_method2:
+        description: Backup authorization method if primary and backup method1 fails.
+        type: str
+        choices: ['none']
+      state:
+        description: Specifies whether to configure or remove authorization.
+        type: str
+        default: present
+        choices: ['present', 'absent']
+  exec_:
+    description: Determines the user privilege level when users are authenticated.
+    type: dict
+    suboptions:
+      primary_method:
+        description: Primary authorization method.
+        type: str
+        required: true
+        choices: ['radius', 'tacacs+', 'none']
+      backup_method1:
+        description: Backup authorization method if primary method fails.
+        type: str
+        choices: ['radius', 'tacacs+', 'none']
+      backup_method2:
+        description: Backup authorization method if primary and backup1 methods fails.
+        type: str
+        choices: ['none']
+      state:
+        description: Specifies whether to configure or remove authorization.
+        type: str
+        default: present
+        choices: ['present', 'absent']
+"""
+EXAMPLES = """
+- name: configure aaa authorization coa_enable and coa_ignore
+  community.network.icx_aaa_authorization:
     coa_enable:
-        description: Enables RADIUS Change of Authorization (CoA).
-        suboptions:
-            state:
-                description: Specifies whether to configure or remove authorization.
-                type: str
-                default: present
-                choices: ['present', 'absent']
+      state: present
     coa_ignore:
-        description: Discards the specified RADIUS Change of Authorization (CoA) messages.
-        suboptions:
-            request:
-                description: Specifies which message request to ignore.
-                choices:  ['disable-port ','dm-request', 'flip-port', 'modify-acl', 'reauth-host']
-                required: true
-                type: str
-            state:
-                description: Specifies whether to configure or remove authorization.
-                type: str
-                default: present
-                choices: ['present', 'absent']
+      request: flip-port
+      state: present
+- name: disable aaa authorization for commands
+  community.network.icx_aaa_authorization:
     commands:
-        description: Configures the AAA authorization configuration parameters for EXEC commands.
-        suboptions:
-            privilege_level:
-                description: Configures the device to perform AAA authorization for the commands available at the specified privilege level. Valid values are 0 (Super User level - all commands), 4 (Port Configuration level - port-config and read-only commands), and 5 (Read Only level -read-only commands)
-                type: int
-                required:true
-                choices: [0,4,5]
-            primary_method:
-                description: primary authorization method.
-                type: str
-                required: true
-                choices: ['radius','tacacs+','none']
-            backup_method1:
-                description: backup authorization method if primary method fails.
-                type: str
-                choices: ['radius','tacacs+','none']
-            backup_method2:
-                description: bacup authorization method if primary and backup1 methods fail.
-                type: str
-                choices: ['none']
-            state:
-                description: Specifies whether to configure or remove authorization.
-                type: str
-                default: present
-                choices: ['present', 'absent']
-    exec:
-        description: Determines the user privilege level when users are authenticated.
-        suboptions:
-            primary_method:
-                description: primary authorization method.
-                type: str
-                required:true
-                choices: ['radius','tacacs+','none']
-            backup_method1:
-                description: backup authorization method if primary method fails.
-                type: str
-                choices: ['radius','tacacs+','none']
-            backup_method2:
-                description: bacup authorization method if primary and backup1 methods fail.
-                type: str
-                choices: ['none']
-            state:
-                description: Specifies whether to configure or remove authorization.
-                type: str
-                default: present
-                choices: ['present', 'absent']
+      privilege_level: 0
+      primary_method: radius
+      backup_method1: tacacs+
+      state: absent
 """
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback
@@ -195,7 +214,6 @@ def main():
     if commands:
         if not module.check_mode:
             response = load_config(module, commands)
-
 
         results['changed'] = True
 
