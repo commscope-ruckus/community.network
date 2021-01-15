@@ -6,116 +6,142 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-
 DOCUMENTATION = """
 ---
 module: icx_aaa_authentication
-version_added: "2.10"
-author: Ruckus Wireless (@Commscope)
+author: "Ruckus Wireless (@Commscope)"
 short_description: Configures AAA authentication in Ruckus ICX 7000 series switches
 description:
   - Configures AAA authentication in Ruckus ICX 7000 series switches.
 notes:
   - Tested against ICX 10.1
 options:
-    dot1x
-      description: Enables 802.1X and MAC authentication.
-      [Default: (null)]
-      suboptions:
-        primary_method:
-          description: primary authentication method.
-          type: str
-          required: true
-          choices: ['radius','none']
-        backup_method1:
-          description: backup authentication method if primary method fails.
-          type: str
-          choices: ['none'] 
-        state:
-          description: Specifies whether to configure or remove authentication.
-          type: str
-          default: present
-          choices: ['present', 'absent']
-    enable
-      description: Configures the AAA authentication method for securing access to the Privileged EXEC level and global configuration levels of the CLI. Only one of method-list or implicit-user should be provided. If the configured primary authentication fails due to an error, the device tries the backup authentication methods in the order they appear in the list.
-      [Default: (null)]
-      suboptions:
-        primary_method:
-          description: primary authentication method.
-          type: str     
-          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
-        backup_method_list:
-          description: backup authentication method if primary method fails.
-          type: list
-          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
-        implicit_user:
-          description: Configures the device to prompt only for a password when a user attempts to gain Super User access to the Privileged EXEC and global configuration levels of the CLI.
-          type: bool
-          default: false
-        state:
-          description: Specifies whether to configure or remove the authentication method.
-          type: str   
-          default: present           
-          choices: ['present', 'absent']
-    login
-      description: Configures the AAA authentication method for securing access to the Privileged EXEC level and global configuration levels of the CLI. Only one of metod-list or implicit-user should be provided.
-      [Default: (null)]
-      suboptions:
-        primary_method:
-          description: primary authentication method.
-          type: str     
-          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
-        backup_method_list:
-          description: backup authentication method if primary method fails.
-          type: list
-          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
-        privilege_mode: 
-          description: Configures the device to enter the privileged EXEC mode after a successful login through Telnet or SSH..       
-          type: bool
-          default: false      
-        state:
-          description: Specifies whether to configure or remove the authentication method.
-          type: str
-          default: present
-          choices: ['present', 'absent']
-    snmp_server
-      description: Configures the AAA authentication method for SNMP server access.  
-      [Default: (null)] 
-      suboptions:
-        primary_method:
-          description: primary authentication method.
-          type: str     
-          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
-        backup_method_list:
-          description: backup authentication method if primary method fails.
-          type: list
-          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
-        state:
-          description: Specifies whether to configure or remove the authentication method.
-          type: str
-          default: present
-          choices: ['present', 'absent']
-    web_server
-      description: Configures the AAA authentication method to access the device through the Web Management Interface.
-      [Default: (null)]
-      suboptions:
-        primary_method:
-          description: primary authentication method.
-          type: str     
-          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
-        backup_method_list:
-          description: backup authentication method if primary method fails.
-          type: list
-          choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
-        state:
-          description: Specifies whether to configure or remove the authentication method.
-          type: str
-          default: present
-          choices: ['present', 'absent']
+  dot1x:
+    description: Enables 802.1X and MAC authentication.
+    default: null
+    type: dict
+    suboptions:
+      primary_method:
+        description: Primary authentication method.
+        type: str
+        required: true
+        choices: ['radius','none']
+      backup_method1:
+        description: Backup authentication method if primary method fails.
+        type: str
+        choices: ['none'] 
+      state:
+        description: Specifies whether to configure or remove authentication.
+        type: str
+        default: present
+        choices: ['present', 'absent']
+  enable:
+    description: Configures the AAA authentication method for securing access to the Privileged EXEC level and global configuration levels of the CLI. Only one of method-list or implicit-user should be provided. If the configured primary authentication fails due to an error, the device tries the backup authentication methods in the order they appear in the list.
+    default: null
+    type: dict
+    suboptions:
+      primary_method:
+        description: Primary authentication method.
+        type: str     
+        choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
+      backup_method_list:
+        description: Backup authentication method if primary method fails.
+        type: list
+        elements: str
+        choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
+      implicit_user:
+        description: Configures the device to prompt only for a password when a user attempts to gain Super User access to the Privileged EXEC and global configuration levels of the CLI.
+        type: bool
+        default: false
+      state:
+        description: Specifies whether to configure or remove the authentication method.
+        type: str   
+        default: present           
+        choices: ['present', 'absent']
+  login:
+    description: Configures the AAA authentication method for securing access to the Privileged EXEC level and global configuration levels of the CLI. Only one of metod-list or implicit-user should be provided.
+    default: null
+    type: dict
+    suboptions:
+      primary_method:
+        description: Primary authentication method.
+        type: str     
+        choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
+      backup_method_list:
+        description: Backup authentication method if primary method fails.
+        type: list
+        elements: str
+        choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
+      privilege_mode: 
+        description: Configures the device to enter the privileged EXEC mode after a successful login through Telnet or SSH..       
+        type: bool
+        default: false      
+      state:
+        description: Specifies whether to configure or remove the authentication method.
+        type: str
+        default: present
+        choices: ['present', 'absent']
+  snmp_server:
+    description: Configures the AAA authentication method for SNMP server access.
+    default: null  
+    type: dict
+    suboptions:
+      primary_method:
+        description: Primary authentication method.
+        type: str    
+        required: true 
+        choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
+      backup_method_list:
+        description: Backup authentication method if primary method fails.
+        type: list
+        elements: str
+        choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
+      state:
+        description: Specifies whether to configure or remove the authentication method.
+        type: str
+        default: present
+        choices: ['present', 'absent']
+  web_server:
+    description: Configures the AAA authentication method to access the device through the Web Management Interface.
+    default: null
+    type: dict
+    suboptions:
+      primary_method:
+        description: Primary authentication method.
+        type: str  
+        required: true   
+        choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
+      backup_method_list:
+        description: Backup authentication method if primary method fails.
+        type: list
+        elements: str
+        choices: ['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']
+      state:
+        description: Specifies whether to configure or remove the authentication method.
+        type: str
+        default: present
+        choices: ['present', 'absent']
+"""
+EXAMPLES = """
+- name: configure aaa authentication dot1x and enable
+  community.network.icx_aaa_authentication:
+    dot1x:
+      primary_method: none
+      state: present
+    enable:
+      primary_method: radius
+      backup_method_list:
+        - enable
+        - line
+      state: present
+- name: disable aaa authentication for web-server
+  community.network.icx_aaa_authentication:
+    web-server:
+      primary_method: tacacs+
+      backup_method_list: 
+        - radius
+        - none
+      state: absent
 """
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.connection import ConnectionError,exec_command
@@ -200,24 +226,24 @@ def main():
     )
     enable_spec = dict(
         primary_method=dict(type='str', choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
-        backup_method_list=dict(type='list', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+']),
+        backup_method_list=dict(type='list', elements='str', choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+',  'none']),
         implicit_user=dict(type='bool', default=False),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     login_spec = dict(
         primary_method=dict(type='str', choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
-        backup_method_list=dict(type='list', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+', 'none']),
+        backup_method_list=dict(type='list', elements='str', choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
         privilege_mode=dict(type='bool', default=False),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     snmp_server_spec = dict(
         primary_method=dict(type='str', required=True, choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
-        backup_method_list=dict(type='list', choices=['enable', 'line', 'local', 'none', 'radius', 'tacacs', 'tacacs+', 'none']),
+        backup_method_list=dict(type='list', elements='str', choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     web_server_spec = dict(
         primary_method=dict(type='str', required=True, choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
-        backup_method_list=dict(type='list', choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
+        backup_method_list=dict(type='list', elements='str', choices=['enable', 'line', 'local', 'radius', 'tacacs', 'tacacs+', 'none']),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
     argument_spec = dict(
@@ -227,7 +253,6 @@ def main():
         snmp_server = dict(type='dict', options=snmp_server_spec),
         web_server = dict(type='dict', options=web_server_spec)
     )
-
     required_one_of = [['dot1x', 'enable', 'login', 'snmp_server','web_server']]
     module = AnsibleModule(argument_spec=argument_spec,
                            required_one_of=required_one_of,
