@@ -102,9 +102,10 @@ def build_command(module, default_acl=None, standard_acl=None):
     Function to build the command to send to the terminal for the switch
     to execute. All args come from the module's unique params.
     """
-    cmds= [] 
+    default_cmds= [] 
+    standard_cmds= []
     if default_acl is not None:
-        cmds= ['authentication'] 
+        default_cmds= ['authentication'] 
         if default_acl['state'] == 'absent':
             cmd = "no default-acl {}".format(default_acl['ip_type'])      
         else:
@@ -114,22 +115,22 @@ def build_command(module, default_acl=None, standard_acl=None):
             cmd+= " {}".format(default_acl['acl_name_or_id'])
         if default_acl['auth_type'] is not None:
             cmd+= " {}".format(default_acl['auth_type'])
-        cmds.append(cmd)
+        default_cmds.append(cmd)
 
     if standard_acl is not None:
         if standard_acl['state'] == 'absent':
             if standard_acl['rule_type'] == 'deny':
-                cmds= ['ip access-list standard 4']
+                standard_cmds= ['ip access-list standard 4']
                 cmd = "no deny"      
             else:
-                cmds= ['ip access-list standard 11']
+                standard_cmds= ['ip access-list standard 11']
                 cmd = "no permit"
         else:
             if standard_acl['rule_type'] == 'deny':
-                cmds= ['ip access-list standard 4']
+                standard_cmds= ['ip access-list standard 4']
                 cmd = "deny"      
             else:
-                cmds= ['ip access-list standard 11']
+                standard_cmds= ['ip access-list standard 11']
                 cmd = "permit" 
 
         if standard_acl['source_address_type'] == 'source':
@@ -151,8 +152,9 @@ def build_command(module, default_acl=None, standard_acl=None):
         
         if standard_acl['mirror']:
             cmd+= " mirror"
-        cmds.append(cmd)
-        
+        standard_cmds.append(cmd)
+
+    cmds = default_cmds + standard_cmds
     return cmds
 
 def main():
