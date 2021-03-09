@@ -202,7 +202,7 @@ def build_command(module, acl_name= None, rule = None, state= None):
                     if elements['state'] == 'absent':
                         cmd = "no {}".format(elements['rule_type'])
                     else:
-                        cmd = " {}".format(elements['rule_type'])
+                        cmd = "{}".format(elements['rule_type'])
 
                 if elements['ip_protocol_name'] is not None:
                     cmd+= " {}".format(elements['ip_protocol_name'])
@@ -250,7 +250,7 @@ def build_command(module, acl_name= None, rule = None, state= None):
                     if elements['state'] == 'absent':
                         cmd = "no {}".format(elements['rule_type'])
                     else:
-                        cmd = " {}".format(elements['rule_type'])
+                        cmd = "{}".format(elements['rule_type'])
 
                 if elements['ip_protocol_name'] is not None:
                     cmd+= " {}".format(elements['ip_protocol_name'])
@@ -307,7 +307,7 @@ def build_command(module, acl_name= None, rule = None, state= None):
                     if elements['state'] == 'absent':
                         cmd = "no {}".format(elements['rule_type'])
                     else:
-                        cmd = " {}".format(elements['rule_type'])
+                        cmd = "{}".format(elements['rule_type'])
                 if elements['ip_protocol_name'] is not None:
                     cmd+= " {}".format(elements['ip_protocol_name'])
                 elif elements['ip_protocol_num'] is not None:
@@ -382,7 +382,7 @@ def build_command(module, acl_name= None, rule = None, state= None):
                     if elements['state'] == 'absent':
                         cmd = " no {}".format(elements['rule_type'])
                     else:
-                        cmd = " {}".format(elements['rule_type'])
+                        cmd = "{}".format(elements['rule_type'])
 
                 if elements['ip_protocol_name'] is not None:
                     cmd+= " {}".format(elements['ip_protocol_name'])
