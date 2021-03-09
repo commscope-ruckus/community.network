@@ -8,7 +8,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: icx_acl
+module: icx_acl_ipv6
 author: "Ruckus Wireless (@Commscope)"
 short_description: Configures ACL in Ruckus ICX 7000 series switches.
 description:
@@ -22,14 +22,14 @@ options:
   rule:
     description: Inserts filtering rules in IPv6 access control lists
     type: list
-    element: dict
+    elements: dict
     suboptions: 
       seq_num:
         description: Enables you to assign a sequence number to the rule. Valid values range from 1 through 65000.
         type: int
       rule_type:
         description: Inserts filtering rules in IPv4 standard named or numbered ACLs that will deny/permit packets.
-        type: string
+        type: str
         choices: ['deny', 'permit']
       ip_protocol_name:
         description: Specifies the type of IPv6 packet to filter.
@@ -155,9 +155,11 @@ options:
         description: Enables the device to limit rate of inbound traffic and to count packets and bytes per packet to which ACL deny clauses are applied.
         type: str
       log:
+        description: Enables SNMP traps and syslog messages for the rule.
         type: bool
         default: no
       mirror:
+        description: Mirrors packets matching the rule.
         type: bool
         default: no
       state:
@@ -489,7 +491,7 @@ def main():
     warnings = list()
     results = {'changed': False}
     acl_name = module.params["acl_name"]
-    rule = module.params.get('rule')
+    rule = module.params["rule"]
     state = module.params["state"]
 
     if warnings:

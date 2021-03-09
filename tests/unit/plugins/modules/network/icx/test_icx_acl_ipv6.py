@@ -29,7 +29,7 @@ class TestICXAclIpv6Module(TestICXModule):
 	    self.load_config.return_value = None
 
     def test_icx_acl_ipv6_all_options(self):
-        ''' Test for successful acl ipv6 with all options'''
+        ''' Test for successful acl ipv6 and rules with all options'''
         set_module_args(dict(acl_name='acl1',
                              rule=[(dict(seq_num='10',rule_type='permit',ip_protocol_name='ipv6',source=dict(any='yes'),destination=dict(any='yes'),fragments='yes',dscp_matching_dscp_value='21',dscp_marking_dscp_value='8',priority_matching_value='6',traffic_policy_name='policy1',log='yes',mirror='yes')),
                                    (dict(seq_num='20',rule_type='deny',ip_protocol_name='icmp',source=dict(ipv6_prefix_prefix_length='2001:DB8::/64'),destination=dict(any='yes'),icmp_num='25',dscp_matching_dscp_value='21',dscp_marking_dscp_value='8',traffic_policy_name='policy1',log='yes',mirror='yes')),
@@ -45,7 +45,7 @@ class TestICXAclIpv6Module(TestICXModule):
         self.assertEqual(result['commands'], expected_commands)
         
     def test_icx_acl_ipv6_all_options_remove(self):
-        ''' Test for removing acl ipv6 with all options'''
+        ''' Test for removing acl ipv6 and rules with all options'''
         set_module_args(dict(acl_name='acl1',state='absent',
                              rule=[(dict(seq_num='10',rule_type='permit',ip_protocol_name='ipv6',source=dict(any='yes'),destination=dict(any='yes'),fragments='yes',dscp_matching_dscp_value='21',dscp_marking_dscp_value='8',priority_matching_value='6',traffic_policy_name='policy1',log='yes',mirror='yes',state='absent')),
                                    (dict(seq_num='20',rule_type='deny',ip_protocol_name='icmp',source=dict(ipv6_prefix_prefix_length='2001:DB8::/64'),destination=dict(any='yes'),icmp_num='25',dscp_matching_dscp_value='21',dscp_marking_dscp_value='8',traffic_policy_name='policy1',log='yes',mirror='yes',state='absent')),
