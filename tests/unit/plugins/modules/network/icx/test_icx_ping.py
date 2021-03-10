@@ -11,6 +11,7 @@ from .icx_module import TestICXModule, load_fixture
 
 class TestICXPingModule(TestICXModule):
     ''' Class used for Unit Tests agains icx_ping module '''
+    
     module = icx_ping
 
     def setUp(self):
