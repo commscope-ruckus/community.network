@@ -84,13 +84,14 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.connection import ConnectionError, exec_command
 from ansible_collections.community.network.plugins.module_utils.network.icx.icx import load_config
 
-def build_command(module, acl_name=None, acl_id=None, rule=None, state=None):
+def build_command(module, acl_name= None, acl_id= None, rule= None, state= None):
     """
     Function to build the command to send to the terminal for the switch
     to execute. All args come from the module's unique params.
     """
 
     acl_cmds = []
+    rule_acl_cmds = []
     if state == 'absent':
         cmd = "no mac access-list {}".format(acl_name)
     else:
@@ -98,7 +99,7 @@ def build_command(module, acl_name=None, acl_id=None, rule=None, state=None):
 
     acl_cmds.append(cmd)
 
-    rule_acl_cmds = []
+    
     if rule is not None:
         for elements in rule:
             if elements['state'] == 'absent':
@@ -125,7 +126,7 @@ def build_command(module, acl_name=None, acl_id=None, rule=None, state=None):
             elif elements['destination']['any'] is not None:
                 cmd+= " any"
             if elements['ether_type']:
-                cmd+= "ether-type {}".format(elements['ether_type'])
+                cmd+= " ether-type {}".format(elements['ether_type'])
             if elements['log']:
                 cmd+= " log"
             if elements['mirror']:
@@ -144,21 +145,21 @@ def main():
     source_spec = dict(
         source_mac_address = dict(type='str'),
         source_mask = dict(type='str'),
-        any = dict(type='bool', default='False')
+        any = dict(type='bool', default='no')
     )
 
     destination_spec = dict(
         destination_mac_address = dict(type='str'),
         destination_mask = dict(type='str'),
-        any = dict(type='bool', default='False')
+        any = dict(type='bool', default='no')
     )
 
     rule_spec = dict(
         rule_type = dict(type='str', choices=['deny', 'permit']),
         source = dict(type='dict', options=source_spec),
         destination = dict(type='dict', options=destination_spec),
-        log = dict(type='bool', default='False'),
-        mirror = dict(type='bool', default='False'),
+        log = dict(type='bool', default='no'),
+        mirror = dict(type='bool', default='no'),
         ether_type = dict(type='str'),
         state = dict(type='str', default='present', choices=['present', 'absent'])
     )
