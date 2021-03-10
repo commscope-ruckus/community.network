@@ -105,27 +105,27 @@ def build_command(module, acl_name=None, acl_id=None, rule=None, state=None):
                 if elements['rule_type'] == 'deny':
                     cmd = "no deny"
                 else:
-                    cmd = 'no permit'
+                    cmd = "no permit"
             else:
               if elements['rule_type'] == 'deny':
-                cmd = 'deny'
+                cmd = "deny"
               else:
-                cmd = 'permit'
+                cmd = "permit"
 
             if elements['source']['source_mac_address'] is not None:
                 cmd+= " {}".format(elements['source']['source_mac_address'])
                 if elements['source']['source_mask'] is not None:
                     cmd+= " {}".format(elements['source']['source_mask'])
             elif elements['source']['any'] is not None:
-                cmd+= ' any'
+                cmd+= " any"
             if elements['destination']['destination_mac_address'] is not None:
                 cmd+= " {}".format(elements['destination']['destination_mac_address'])
                 if elements['destination']['destination_mask'] is not None:
                     cmd+= " {}".format(elements['destination']['destination_mask'])
             elif elements['destination']['any'] is not None:
-                cmd+= ' any'
+                cmd+= " any"
             if elements['ether_type']:
-                cmd+= " ether-type {}".format(elements['ether_type'])
+                cmd+= "ether-type {}".format(elements['ether_type'])
             if elements['log']:
                 cmd+= " log"
             if elements['mirror']:
