@@ -75,11 +75,11 @@ class TestICXAclMacModule(TestICXModule):
         self.assertEqual(result['commands'], expected_commands)
 
 
-    # def test_icx_invalid_mac_acl_permit(self):
-    #     ''' Test for invalid acl_name'''
-    #     set_module_args(dict(acl_name='mac123',
-    #                          rule=[(dict(rule_type='permit',source=dict(source_mac_address='1111.2222.3333'),destination=dict(any='yes'),log='yes'))]))
-    #     result = self.execute_module(failed=True)
+    def test_icx_invalid_mac_acl_permit(self):
+        ''' Test for invalid mac source address'''
+        set_module_args(dict(acl_name='mac123',
+                             rule=[(dict(rule_type='permit',source=dict(source_mac_address='1111.2222.3333'),destination=dict(any='yes'),log='yes'))]))
+        result = self.execute_module(failed=True)
 
     
 
