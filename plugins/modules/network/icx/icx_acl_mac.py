@@ -19,46 +19,44 @@ options:
   acl_name:
     description: Specifies a unique ACL name.
     type: str
-  acl_id:
-    description: Specifies a unique ACL number.
-    type: int
+    required: true
   rule:
     description: Inserts filtering rules in mac access control list
     type: list
     element: dict
-    suboptions:     
+    suboptions:
       rule_type:
         description: Inserts filtering rules in IPv4 standard named or numbered ACLs that will deny/permit packets.
         type: str
-        choices: ['deny', 'permit']   
-      source:  
+        choices: ['deny', 'permit']
+      source:
         description: {source_mac_address soource_mask | any }
         type: dict
-        suboptions:             
+        suboptions:
           source_mac_address:
             description: HHHH.HHHH.HHHH Source Ethernet MAC address.
-            type: str  
+            type: str
           source_mask:
             description: HHHH.HHHH.HHHH Source mask
-            type: str           
+            type: str
           any:
             description: Matches any.
             type: bool
-            default: no  
-      destination:  
+            default: no
+      destination:
         description: {destination_mac_address destination_mask | any }
         type: dict
-        suboptions:             
+        suboptions:
           destination_mac_address:
             description: HHHH.HHHH.HHHH Destination Ethernet MAC address.
-            type: str  
+            type: str
           destination_mask:
             description: HHHH.HHHH.HHHH Destination mask
-            type: str           
+            type: str
           any:
             description: Matches any.
             type: bool
-            default: no     
+            default: no
       log:
         type: bool
         default: no
@@ -84,7 +82,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.connection import ConnectionError, exec_command
 from ansible_collections.community.network.plugins.module_utils.network.icx.icx import load_config
 
-def build_command(module, acl_name= None, acl_id= None, rule= None, state= None):
+def build_command(module, acl_name=None, rule=None, state=None):
     """
     Function to build the command to send to the terminal for the switch
     to execute. All args come from the module's unique params.
@@ -96,95 +94,93 @@ def build_command(module, acl_name= None, acl_id= None, rule= None, state= None)
         cmd = "no mac access-list {}".format(acl_name)
     else:
         cmd = "mac access-list {}".format(acl_name)
-
     acl_cmds.append(cmd)
-
-    
     if rule is not None:
         for elements in rule:
             if elements['state'] == 'absent':
-                if elements['rule_type'] == 'deny':
-                    cmd = "no deny"
+                cmd = "no"
+                if elements['rule_type'] is not None:
+                    cmd += " {}".format(elements['rule_type'])
                 else:
-                    cmd = "no permit"
+                    cmd += " {}".format(elements['rule_type'])
             else:
-              if elements['rule_type'] == 'deny':
-                cmd = "deny"
-              else:
-                cmd = "permit"
+                if elements['rule_type'] is not None:
+                    cmd = "{}".format(elements['rule_type'])
+                else:
+                    cmd = "{}".format(elements['rule_type'])
 
             if elements['source']['source_mac_address'] is not None:
-                cmd+= " {}".format(elements['source']['source_mac_address'])
+                cmd += " {}".format(elements['source']['source_mac_address'])
                 if elements['source']['source_mask'] is not None:
-                    cmd+= " {}".format(elements['source']['source_mask'])
+                    cmd += " {}".format(elements['source']['source_mask'])
             elif elements['source']['any'] is not None:
-                cmd+= " any"
+                cmd += " any"
             if elements['destination']['destination_mac_address'] is not None:
-                cmd+= " {}".format(elements['destination']['destination_mac_address'])
+                cmd += " {}".format(elements['destination']['destination_mac_address'])
                 if elements['destination']['destination_mask'] is not None:
-                    cmd+= " {}".format(elements['destination']['destination_mask'])
+                    cmd += " {}".format(elements['destination']['destination_mask'])
             elif elements['destination']['any'] is not None:
-                cmd+= " any"
+                cmd += " any"
             if elements['ether_type']:
-                cmd+= " ether-type {}".format(elements['ether_type'])
+                cmd += " ether-type {}".format(elements['ether_type'])
             if elements['log']:
-                cmd+= " log"
+                cmd += " log"
             if elements['mirror']:
-                cmd+= " mirror"
-            
+                cmd += " mirror"
             rule_acl_cmds.append(cmd)
-
-    cmds = 	acl_cmds + rule_acl_cmds
-    return cmds	
+    cmds = acl_cmds + rule_acl_cmds
+    return cmds
 
 
 def main():
     """ main entry point for module execution
     """
-    
+
     source_spec = dict(
-        source_mac_address = dict(type='str'),
-        source_mask = dict(type='str'),
-        any = dict(type='bool', default='no')
+        source_mac_address=dict(type='str'),
+        source_mask=dict(type='str'),
+        any=dict(type='bool', default='no')
     )
 
     destination_spec = dict(
-        destination_mac_address = dict(type='str'),
-        destination_mask = dict(type='str'),
-        any = dict(type='bool', default='no')
+        destination_mac_address=dict(type='str'),
+        destination_mask=dict(type='str'),
+        any=dict(type='bool', default='no')
     )
 
     rule_spec = dict(
-        rule_type = dict(type='str', choices=['deny', 'permit']),
-        source = dict(type='dict', options=source_spec),
-        destination = dict(type='dict', options=destination_spec),
-        log = dict(type='bool', default='no'),
-        mirror = dict(type='bool', default='no'),
-        ether_type = dict(type='str'),
-        state = dict(type='str', default='present', choices=['present', 'absent'])
+        rule_type=dict(type='str', choices=['deny', 'permit']),
+        source=dict(type='dict', options=source_spec),
+        destination=dict(type='dict', options=destination_spec),
+        log=dict(type='bool', default='no'),
+        mirror=dict(type='bool', default='no'),
+        ether_type=dict(type='str'),
+        state=dict(type='str', default='present', choices=['present', 'absent'])
     )
 
     argument_spec = dict(
-        acl_name = dict(type='str'),
-        acl_id = dict(type='int'),
-        rule = dict(type='list', elements='dict', options=rule_spec),
-        state = dict(type='str', default='present', choices=['present', 'absent'])
+        acl_name=dict(type='str', required=True),
+        rule=dict(type='list', elements='dict', options=rule_spec),
+        state=dict(type='str', default='present', choices=['present', 'absent'])
     )
+    required_one_of = ['acl_name', 'rule', 'state']
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True,
+        required_one_of=required_one_of)
 
     warnings = list()
     results = {'changed': False}
     acl_name = module.params["acl_name"]
-    acl_id = module.params["acl_id"]
     rule = module.params["rule"]
     state = module.params["state"]
-    
+
 
     if warnings:
         results['warnings'] = warnings
 
-    commands = build_command(module, acl_name, acl_id, rule, state)
+    commands = build_command(module, acl_name, rule, state)
     results['commands'] = commands
 
     if commands:
@@ -197,5 +193,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    

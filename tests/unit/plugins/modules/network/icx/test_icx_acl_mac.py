@@ -59,29 +59,24 @@ class TestICXAclMacModule(TestICXModule):
     def test_icx_mac_permit_acl(self):
         ''' Test for successful mac rule permit acl'''
         set_module_args(dict(acl_name='mac123',
-                             rule=[(dict(rule_type='permit',source=dict(source_mac_address='1111.2222.3333'),destination=dict(destination_mac_address='4444.5555.6666'), ether_type='0800', log='yes', mirror='yes'))]))
+                             rule=[(dict(rule_type='permit',source=dict(source_mac_address='1111.2222.3333'),destination=dict(destination_mac_address='4444.5555.6666'), ether_type='0800'))]))
 
-        expected_commands = ['mac access-list mac123','permit 1111.2222.3333 4444.5555.6666 ether-type 0800 log mirror']
+        expected_commands = ['mac access-list mac123','permit 1111.2222.3333 4444.5555.6666 ether-type 0800']
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)
 
     def test_icx_mac_deny_acl(self):
         ''' Test for successful mac rule deny acl'''
         set_module_args(dict(acl_name='mac123',
-                             rule=[(dict(rule_type='deny',source=dict(source_mac_address='1111.2222.3333'),destination=dict(destination_mac_address='4444.5555.6666'), ether_type='0800', log='yes', mirror='yes'))]))
+                             rule=[(dict(rule_type='deny',source=dict(source_mac_address='1111.2222.3333'),destination=dict(destination_mac_address='4444.5555.6666'), ether_type='0800', mirror='yes'))]))
 
-        expected_commands = ['mac access-list mac123','deny 1111.2222.3333 4444.5555.6666 ether-type 0800 log mirror']
+        expected_commands = ['mac access-list mac123','deny 1111.2222.3333 4444.5555.6666 ether-type 0800 mirror']
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)
 
-
-    def test_icx_invalid_mac_acl_permit(self):
+    def test_icx_invalid_mac_acl_deny(self):
         ''' Test for invalid mac source address'''
         set_module_args(dict(acl_name='mac123',
-                             rule=[(dict(rule_type='permit',source=dict(source_mac_address='1111.2222.3333'),destination=dict(any='yes'),log='yes'))]))
+                             rule=[(dict(rule_type='aa',source=dict(source_mac_address='1111.2222.3333'),destination=dict(any='yes'),log='yes'))]))
         result = self.execute_module(failed=True)
-
-    
-
-
 
