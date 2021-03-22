@@ -39,7 +39,7 @@ options:
         type: int
       rule_type:
         description: Inserts filtering rules in IPv4 standard named or numbered ACLs that will deny/permit packets.
-        type: string
+        type: str
         required: true
         choices: ['deny', 'permit']
       host:
@@ -76,14 +76,14 @@ options:
   extended_rule: 
     description: Inserts filtering rules in extended named or numbered ACLs. Specify either protocol name or number.
     type: list
-    element: dict
+    elements: dict
     suboptions:
       seq_num:
         description: Enables you to assign a sequence number to the rule. Valid values range from 1 through 65000.
         type: int
       rule_type:
         description: Inserts filtering rules in IPv4 standard named or numbered ACLs that will deny/permit packets.
-        type: string
+        type: str
         required: true
         choices: ['deny', 'permit']
       ip_protocol_name:
@@ -94,7 +94,7 @@ options:
         description: Protocol number (from 0 to 255).
         type: int            
       source:
-        description: {host hostname or A.B.C.D | A.B.C.D or A.B.C.D/L | any} 
+        description: host hostname or A.B.C.D | A.B.C.D or A.B.C.D/L | any.
         type: dict
         required: true
         suboptions:
@@ -116,7 +116,7 @@ options:
             type: bool
             default: no            
       destination:
-        description: {host hostname or A.B.C.D | A.B.C.D or A.B.C.D/L | any}
+        description: host hostname or A.B.C.D | A.B.C.D or A.B.C.D/L | any
         type: dict
         required: true
         suboptions:
@@ -193,7 +193,7 @@ options:
       icmp_type:
         description: Specifies icmp type.
         type: str  
-        choices: ['any-icmp-type','echo','echo-reply','information-request','mask-reply','mask-request','parameter-problem','redirect','source-quench','time-exceeded'',''timestamp-reply'',''timestamp-request'',''unreachable']   
+        choices: ['any-icmp-type','echo','echo-reply','information-request','mask-reply','mask-request','parameter-problem','redirect','source-quench','time-exceeded','timestamp-reply','timestamp-request','unreachable']   
       precedence:
         description: Specifies a precedence-name. 
           0 or routine - Specifies routine precedence.
@@ -221,16 +221,16 @@ options:
       dscp_marking_dscp_value:
         description: Assigns the DSCP value that you specify to the packet. Values range from 0 through 63.
         type: int
-      802.1p_priority_matching_value:
+      priority_matching_value:
         description: Filters by 802.1p priority, for rate limiting. Values range from 0 through 7.
         type: int
-      802.1p_priority_marking_value:
+      priority_marking_value:
         description: Assigns the 802.1p value that you specify to the packet. Values range from 0 through 7.
         type: int
       internal_priority_marking_queuing_priority:
-        description: Assigns the identical 802.1p value and internal queuing priority (traffic class) that you specify to the packet [0-7]
+        description: Assigns the internal queuing priority (traffic class) that you specify to the packet. Values range from 0 through 7.
         type: int
-      802.1p_and_internal_marking_priority_value:
+      internal_marking_priority_value:
         description: Assigns the identical 802.1p value and internal queuing priority (traffic class) that you specify to the packet [0-7]
         type: int
       traffic_policy_name:
@@ -239,9 +239,11 @@ options:
       log:
         type: bool
         default: no
+        description: Enables SNMP traps and Syslog messages for the rule. In addition, logging must be enabled using the logging enable command.
       mirror:
         type: bool
         default: no
+        description: Mirrors packets matching the rule.
       state:
         description: Specifies whether to configure or remove rule.
         type: str
@@ -252,6 +254,36 @@ options:
     type: str
     default: present
     choices: ['present', 'absent']      
+"""
+EXAMPLES = """
+- name: create ipv4 acl and add rules
+  community.network.icx_acl_ip:
+    acl_type: standard
+    acl_name: acl1
+    standard_rule:
+      - rule_type: permit
+        seq_num: 10
+        any: yes
+        log: yes
+- name: create ipv4 acl and add rules
+  community.network.icx_acl_ip:
+    acl_type: extended
+    acl_id: 112
+    extended_rule: 
+      - rule_type: deny
+        ip_protocol_name: tcp
+        source:
+          host: yes
+          ip_address: 1.1.1.1
+        destination:
+          any: yes
+        precedence: routine
+        state: absent
+- name: remove ipv4 acl
+  community.network.icx_acl_ip:
+    acl_type: standard
+    acl_name: acl1
+    state: absent 
 """
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback
@@ -279,11 +311,11 @@ def build_command(module, acl_type= None, acl_name= None, acl_id= None, standard
                 if elements['state'] == 'absent':
                     cmd = "no sequence {}".format(elements['seq_num'])
                     if elements['rule_type'] is not None:
-                        cmd+= " {}".format(elements['rule_type'])
+                        cmd+=" {}".format(elements['rule_type'])
                 else:
                     cmd = "sequence {}".format(elements['seq_num'])
                     if elements['rule_type'] is not None:
-                        cmd+= " {}".format(elements['rule_type'])
+                        cmd+=" {}".format(elements['rule_type'])
             else:
                 if elements['state'] == 'absent':
                     cmd = "no {}".format(elements['rule_type'])
@@ -292,24 +324,24 @@ def build_command(module, acl_type= None, acl_name= None, acl_id= None, standard
 
             if elements['host']:
                 if elements['hostname'] is not None:
-                    cmd+= " host {}".format(elements['hostname'])
+                    cmd+=" host {}".format(elements['hostname'])
                 else:
                     cmd+=" host {}".format(elements['source_ip'])
             elif elements['any']:
-                cmd+= " any"
+                cmd+=" any"
             elif elements['hostname'] is not None:
-                cmd+= " host {}".format(elements['hostname'])
+                cmd+=" host {}".format(elements['hostname'])
                 if elements['mask'] is not None:
-                    cmd+= " {}".format(elements['mask'])
+                    cmd+=" {}".format(elements['mask'])
             else:
                 cmd+=" {}".format(elements['source_ip'])
                 if elements['mask'] is not None:
-                    cmd+= " {}".format(elements['mask'])
+                    cmd+=" {}".format(elements['mask'])
 
             if elements['log']:
-                cmd+= " log"      
+                cmd+=" log"      
             if elements['mirror']:
-                cmd+= " mirror"
+                cmd+=" mirror"
             standard_rule_cmds.append(cmd)
 
 
@@ -468,7 +500,7 @@ def main():
     )  
     standard_rule_spec = dict(
         seq_num = dict(type='int'),
-        rule_type = dict(type='str', choices=['deny', 'permit']),
+        rule_type = dict(type='str', required= True, choices=['deny', 'permit']),
         host = dict(type='bool', default='no'),
         source_ip = dict(type='str'),
         mask = dict(type='str'),
@@ -489,7 +521,7 @@ def main():
         destination_comparison_operators = dict(type='dict', options=destination_comparison_operators_spec),
         established = dict(type='bool', default='no'),
         icmp_num = dict(type='int'),
-        icmp_type = dict(type='str',choices = ['beyond-scope','destination-unreachable','echo-reply','echo-request','header','hop-limit','mld-query','mld-reduction','mld-report','nd-na','nd-ns','next-header','no-admin','no-route','packet-too-big','parameter-option','parameter-problem','port-unreachable','reassembly-timeout','renum-command','renum-result','renum-seq-number','router-advertisement','router-renumbering','router-solicitation','time-exceeded','unreachable']),
+        icmp_type = dict(type='str',choices = ['any-icmp-type','echo','echo-reply','information-request','mask-reply','mask-request','parameter-problem','redirect','source-quench','time-exceeded','timestamp-reply','timestamp-request','unreachable']),
         precedence = dict(type='str',choices= ['routine','priority','immediate','flash','flash-override','critical','internet','network']),
         tos  = dict(type='str',choices= ['normal','min-monetary-cost','max-reliability','max-throughput','min-delay']),
         dscp_matching_dscp_value = dict(type='int'),
