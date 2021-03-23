@@ -174,7 +174,7 @@ EXAMPLES = """
 - name: create ipv6 acl and add rules
   community.network.icx_acl_ipv6:
     acl_name: acl1
-    rules: |
+    rules: 
       - rule_type: permit
         seq_num: 10
         ip_protocol_name: ipv6
