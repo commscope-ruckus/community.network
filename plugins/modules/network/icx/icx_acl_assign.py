@@ -186,6 +186,8 @@ def build_command(
             if ip_access_group['vlan']['interfaces'] is not None:
                 for elements in ip_access_group['vlan']['interfaces']:
                     cmd = "tagged {}".format(elements)
+                    if ip_access_group['lag'] is not None:
+                        cmd += " lag {}".format(ip_access_group['lag'])
             cmds.append(cmd)
 
 
@@ -234,6 +236,8 @@ def build_command(
             if ipv6_access_group['vlan']['interfaces'] is not None:
                 for elements in ipv6_access_group['vlan']['interfaces']:
                     cmd = "tagged {}".format(elements)
+                    if ip_access_group['lag'] is not None:
+                        cmd += " lag {}".format(ip_access_group['lag'])
             cmds.append(cmd)
 
 
@@ -282,6 +286,8 @@ def build_command(
             if mac_access_group['vlan']['interfaces'] is not None:
                 for elements in mac_access_group['vlan']['interfaces']:
                     cmd = "tagged {}".format(elements)
+                    if ip_access_group['lag'] is not None:
+                        cmd += " lag {}".format(ip_access_group['lag'])
             cmds.append(cmd)
 
 
