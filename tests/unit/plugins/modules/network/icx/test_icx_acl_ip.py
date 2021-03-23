@@ -31,7 +31,7 @@ class TestICXAclIpModule(TestICXModule):
     def test_icx_acl_ip_extended_all_options(self):
         ''' Test for successful extended acl ipV4 and rules with all options'''
         set_module_args(dict(acl_type ='extended', acl_name = 'acl1',
-                             extended_rule=[(dict(seq_num='10',rule_type='permit',ip_protocol_name='ip',source=dict(host='yes',ip_address='1.1.1.1'),destination=dict(ip_address='2.2.2.2',mask='0.0.0.0'),precedence='routine',tos='normal',dscp_matching_dscp_value='21',dscp_marking_dscp_value='8',priority_matching_value='6',priority_marking_value='6',internal_priority_marking_queuing_priority='3',log='yes',mirror='yes')),
+                             extended_rules=[(dict(seq_num='10',rule_type='permit',ip_protocol_name='ip',source=dict(host='yes',ip_address='1.1.1.1'),destination=dict(ip_address='2.2.2.2',mask='0.0.0.0'),precedence='routine',tos='normal',dscp_matching_dscp_value='21',dscp_marking_dscp_value='8',priority_matching_value='6',priority_marking_value='6',internal_priority_marking_queuing_priority='3',log='yes',mirror='yes')),
                                    (dict(seq_num='20',rule_type='deny',ip_protocol_name='icmp',source=dict(any='yes'),destination=dict(ip_address='1.1.1.1',mask='0.0.0.0'),icmp_num='25',precedence='priority',tos='max-reliability',dscp_matching_dscp_value='21',dscp_marking_dscp_value='8',priority_matching_value='6',traffic_policy_name='policy1',log='yes',mirror='yes')),
                                    (dict(seq_num='10',rule_type='permit',ip_protocol_name='tcp',source=dict(ip_address='2.2.2.2',mask='0.0.0.0'),destination=dict(any='yes'),source_comparison_operators=dict(operator='eq',port_num='22'),destination_comparison_operators=dict(operator='range',port_name='ftp',high_port_name='http'),established='yes',precedence='network',tos='min-delay',dscp_matching_dscp_value='32',dscp_marking_dscp_value='8',priority_matching_value='6',internal_marking_priority_value='7'))]))
         expected_commands = ['ip access-list extended acl1',
@@ -43,7 +43,7 @@ class TestICXAclIpModule(TestICXModule):
     def test_icx_acl_ip_extended_all_options_remove(self):
         ''' Test for removing extended acl ipV4 and rules with all options'''
         set_module_args(dict(acl_type = 'extended',acl_name='acl1',state='absent',
-                             extended_rule=[(dict(seq_num='10',rule_type='permit',ip_protocol_name='ip',source=dict(host='yes',ip_address='1.1.1.1'),destination=dict(ip_address='2.2.2.2',mask='0.0.0.0'),precedence='routine',tos='normal',dscp_matching_dscp_value='21',dscp_marking_dscp_value='8',priority_matching_value='6',priority_marking_value='6',internal_priority_marking_queuing_priority='3',log='yes',mirror='yes',state='absent')),
+                             extended_rules=[(dict(seq_num='10',rule_type='permit',ip_protocol_name='ip',source=dict(host='yes',ip_address='1.1.1.1'),destination=dict(ip_address='2.2.2.2',mask='0.0.0.0'),precedence='routine',tos='normal',dscp_matching_dscp_value='21',dscp_marking_dscp_value='8',priority_matching_value='6',priority_marking_value='6',internal_priority_marking_queuing_priority='3',log='yes',mirror='yes',state='absent')),
                                    (dict(seq_num='20',rule_type='deny',ip_protocol_name='icmp',source=dict(any='yes'),destination=dict(ip_address='1.1.1.1',mask='0.0.0.0'),icmp_num='25',precedence='priority',tos='max-reliability',dscp_matching_dscp_value='21',dscp_marking_dscp_value='8',priority_matching_value='6',traffic_policy_name='policy1',log='yes',mirror='yes',state='absent')),
                                    (dict(seq_num='10',rule_type='permit',ip_protocol_name='tcp',source=dict(ip_address='2.2.2.2',mask='0.0.0.0'),destination=dict(any='yes'),source_comparison_operators=dict(operator='eq',port_num='22'),destination_comparison_operators=dict(operator='range',port_name='ftp',high_port_name='http'),established='yes',precedence='network',tos='min-delay',dscp_matching_dscp_value='32',dscp_marking_dscp_value='8',priority_matching_value='6',internal_marking_priority_value='7',state='absent'))]))
         expected_commands = ['no ip access-list extended acl1',
@@ -55,7 +55,7 @@ class TestICXAclIpModule(TestICXModule):
     def test_icx_acl_ip_standard_all_options(self):
         ''' Test for successful standard ipv4 and rule with all options'''
         set_module_args(dict(acl_type='standard',acl_name='acl1',
-                             standard_rule=[(dict(seq_num='10',rule_type='permit',host='yes',source_ip='2.2.2.2',log='yes',mirror='yes'))]))
+                             standard_rules=[(dict(seq_num='10',rule_type='permit',host='yes',source_ip='2.2.2.2',log='yes',mirror='yes'))]))
         expected_commands = ['ip access-list standard acl1',
                              'sequence 10 permit host 2.2.2.2 log mirror']
         result = self.execute_module(changed=True)
@@ -64,7 +64,7 @@ class TestICXAclIpModule(TestICXModule):
     def test_icx_acl_ip_standard_all_options_remove(self):
         ''' Test for removing standard ipv4 and rule with all options'''
         set_module_args(dict(acl_type='standard',acl_name='acl1',state='absent',
-                             standard_rule=[(dict(seq_num='10',rule_type='permit',host='yes',source_ip='2.2.2.2',log='yes',mirror='yes',state='absent'))]))
+                             standard_rules=[(dict(seq_num='10',rule_type='permit',host='yes',source_ip='2.2.2.2',log='yes',mirror='yes',state='absent'))]))
         expected_commands = ['no ip access-list standard acl1',
                              'no sequence 10 permit host 2.2.2.2 log mirror']
         result = self.execute_module(changed=True)
@@ -73,7 +73,7 @@ class TestICXAclIpModule(TestICXModule):
     def test_icx_acl_ip_extended_deny(self):
         ''' Test for successful extended acl ipV4 deny'''
         set_module_args(dict(acl_type ='extended', acl_name = 'acl1',
-                             extended_rule=[(dict(rule_type='deny',ip_protocol_name='ip',source=dict(any='yes'),destination=dict(any='yes'),precedence='routine',log='yes')),
+                             extended_rules=[(dict(rule_type='deny',ip_protocol_name='ip',source=dict(any='yes'),destination=dict(any='yes'),precedence='routine',log='yes')),
                                    (dict(rule_type='deny',ip_protocol_name='icmp',source=dict(any='yes'),destination=dict(ip_address='1.1.1.1',mask='0.0.0.0'),icmp_num='25',tos='max-reliability',dscp_matching_dscp_value='21')),
                                    (dict(rule_type='deny',ip_protocol_name='tcp',source=dict(any='yes'),destination=dict(any='yes'),source_comparison_operators=dict(operator='eq',port_num='22'),precedence='network'))]))
         expected_commands = ['ip access-list extended acl1',
@@ -86,7 +86,7 @@ class TestICXAclIpModule(TestICXModule):
     def test_icx_acl_ip_standard_deny(self):
         ''' Test for successful standard acl ipV4 deny rule'''
         set_module_args(dict(acl_type='standard',acl_name='acl1',
-                             standard_rule=[(dict(seq_num='10',rule_type='deny',any='yes'))]))
+                             standard_rules=[(dict(seq_num='10',rule_type='deny',any='yes'))]))
         expected_commands = ['ip access-list standard acl1',
                              'sequence 10 deny any']
         result = self.execute_module(changed=True)
@@ -95,7 +95,7 @@ class TestICXAclIpModule(TestICXModule):
     def test_icx_acl_ip_extended_permit(self):
         ''' Test for successful extended acl ipV4 permit rule'''
         set_module_args(dict(acl_type ='extended', acl_name = 'acl1',
-                             extended_rule=[(dict(rule_type='permit',ip_protocol_name='ip',source=dict(host='yes',ip_address='1.1.1.1'),destination=dict(any='yes'),traffic_policy_name='policy1')),
+                             extended_rules=[(dict(rule_type='permit',ip_protocol_name='ip',source=dict(host='yes',ip_address='1.1.1.1'),destination=dict(any='yes'),traffic_policy_name='policy1')),
                                    (dict(rule_type='permit',ip_protocol_name='icmp',source=dict(any='yes'),destination=dict(ip_address='1.1.1.1',mask='0.0.0.0'),icmp_num='25')),
                                    (dict(rule_type='permit',ip_protocol_name='tcp',source=dict(any='yes'),destination=dict(any='yes'),source_comparison_operators=dict(operator='eq',port_num='22'),destination_comparison_operators=dict(operator='range',port_name='ftp')))]))
         expected_commands = ['ip access-list extended acl1',
@@ -108,7 +108,7 @@ class TestICXAclIpModule(TestICXModule):
     def test_icx_acl_ip_standard_permit(self):
         ''' Test for successful standard acl ipV4 permit rule'''
         set_module_args(dict(acl_type='standard',acl_name='acl1',
-                             standard_rule=[(dict(rule_type='deny',any='yes',log='yes'))]))
+                             standard_rules=[(dict(rule_type='deny',any='yes',log='yes'))]))
         expected_commands = ['ip access-list standard acl1',
                              'deny any log']
         result = self.execute_module(changed=True)
@@ -117,10 +117,10 @@ class TestICXAclIpModule(TestICXModule):
     def test_icx_invalid_args_acl_ip_standard(self):
         ''' Test for invalid rule_type'''
         set_module_args(dict(acl_type='standard',acl_name='acl1',
-                             standard_rule=[(dict(seq_num='20',rule_type='aa',any='yes',log='yes'))]))
+                             standard_rules=[(dict(seq_num='20',rule_type='aa',any='yes',log='yes'))]))
         result = self.execute_module(failed=True)
-    def test_icx_invalid_args_acl_ipv6_extended(self):
+    def test_icx_invalid_args_acl_ip_extended(self):
         ''' Test for invalid seq_num'''
         set_module_args(dict(acl_name='acl1', 
-                             extended_rule=[(dict(seq_num='aa',rule_type='permit',ip_protocol_name='ip',source=dict(host='yes',ip_address='1.1.1.1'),destination=dict(any='yes')))]))
+                             extended_rules=[(dict(seq_num='aa',rule_type='permit',ip_protocol_name='ip',source=dict(host='yes',ip_address='1.1.1.1'),destination=dict(any='yes')))]))
         result = self.execute_module(failed=True)
