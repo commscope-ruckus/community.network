@@ -340,20 +340,13 @@ def build_command(module, acl_type= None, acl_name= None, acl_id= None, standard
 
     if extended_rules is not None:
         for rule in extended_rules:              
+            cmd = ""           
+            if rule['state'] == 'absent':
+                cmd+="no "
             if rule['seq_num'] is not None:
-                if rule['state'] == 'absent':
-                    cmd = "no sequence {}".format(rule['seq_num'])
-                    if rule['rule_type'] is not None:
-                        cmd+=" {}".format(rule['rule_type'])
-                else:
-                    cmd = "sequence {}".format(rule['seq_num'])
-                    if rule['rule_type'] is not None:
-                        cmd+=" {}".format(rule['rule_type'])
-            else:
-                if rule['state'] == 'absent':
-                    cmd = "no {}".format(rule['rule_type'])
-                else:
-                    cmd = "{}".format(rule['rule_type'])
+                cmd+="sequence {} ".format(rule['seq_num'])
+            if rule['rule_type'] is not None:
+                cmd+="{}".format(rule['rule_type'])
 
             if rule['ip_protocol_name'] is not None:
                 cmd+=" {}".format(rule['ip_protocol_name'])
