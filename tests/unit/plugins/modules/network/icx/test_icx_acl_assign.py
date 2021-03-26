@@ -36,15 +36,15 @@ class TestICXAclAssignModule(TestICXModule):
                              default_acl=dict(ip_type='ipv4',acl_name='guest', in_out='in')))
         expected_commands = [
             'vlan 555',
-            'tagged ethernet 1/1/2',
+            'tagged ethernet 1/1/2 lag 25',
             'ip access-group 123 in ethernet 1/1/2 lag 25 logging enable',
             'ip access-group frag deny',
             'vlan 555',
-            'tagged ethernet 1/1/2',
+            'tagged ethernet 1/1/2 lag 25',
             'ipv6 access-group 1 in ethernet 1/1/2 lag 25 logging enable',
             'ipv6 access-group frag deny',
             'vlan 555',
-            'tagged ethernet 1/1/2',
+            'tagged ethernet 1/1/2 lag 25',
             'mac access-group mac_acl1 in ethernet 1/1/2 lag 25 logging enable',
             'authentication',
             'default-acl ipv4 guest in'
@@ -59,15 +59,15 @@ class TestICXAclAssignModule(TestICXModule):
                              mac_access_group=dict(mac_acl_name='mac_acl1', ethernet='1/1/2', lag='25', vlan=dict(vlan_num='555', interfaces=['ethernet 1/1/2']), logging='enable', state='absent'),
                              default_acl=dict(ip_type='ipv4',acl_name='guest', in_out='in', state='absent')))
         expected_commands = [
-            'vlan 555',
-            'tagged ethernet 1/1/2',
+            'no vlan 555',
+            'untagged ethernet 1/1/2',
             'no ip access-group 123 in ethernet 1/1/2 lag 25 logging enable',
             'no ip access-group frag deny',
-            'vlan 555',
+            'no vlan 555',
             'tagged ethernet 1/1/2',
             'no ipv6 access-group 1 in ethernet 1/1/2 lag 25 logging enable',
             'no ipv6 access-group frag deny',
-            'vlan 555',
+            'no vlan 555',
             'tagged ethernet 1/1/2',
             'no mac access-group mac_acl1 in ethernet 1/1/2 lag 25 logging enable',
             'authentication',

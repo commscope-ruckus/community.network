@@ -342,7 +342,7 @@ def main():
         acl_num=dict(type='int'),
         acl_name=dict(type='str'),
         in_out=dict(type='str', choices=['in', 'out']),
-        ethernet=dict(type='str'),
+        ethernet=dict(type='string'),
         lag=dict(type='int'),
         vlan=dict(type='dict', options=vlan_spec),
         logging=dict(type='str', choices=['enable', 'disable']),
@@ -354,7 +354,7 @@ def main():
         acl_num=dict(type='int'),
         acl_name=dict(type='str'),
         in_out=dict(type='str', choices=['in', 'out']),
-        ethernet=dict(type='str'),
+        ethernet=dict(type='string'),
         lag=dict(type='int'),
         vlan=dict(type='dict', options=vlan_spec),
         logging=dict(type='str', choices=['enable', 'disable']),
@@ -364,7 +364,7 @@ def main():
 
     mac_access_group_spec = dict(
         mac_acl_name=dict(type='str', required=True),
-        ethernet=dict(type='str'),
+        ethernet=dict(type='string'),
         lag=dict(type='int'),
         vlan=dict(type='dict', options=vlan_spec),
         logging=dict(type='str', choices=['enable', 'disable']),
