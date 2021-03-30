@@ -77,7 +77,50 @@ options:
   default: present
   choices: ['present', 'absent']
 """
+EXAMPLES = """
+- name: create mac acl and add rules
+    community.network.icx_acl_mac:
+      acl_name: mac123
+      rule:
+        - rule_type: permit
+          source: 
+            source_mac_address: 1111.2222.3333
+            source_mask: ffff.ffff.ffff
+            any: yes
+          destination:
+            destination_mac_address: 4444.5555.6666
+            destination_mask: ffff.ffff.ffff
+            any: yes
+        - rule_type: permit
+          source: 
+            source_mac_address: 1111.2222.3333
+            source_mask: ffff.ffff.ffff
+            any: yes
+          destination:
+            destination_mac_address: 4444.5555.6666
+            destination_mask: ffff.ffff.ffff
+            any: yes
+          state: absent
+        - rule_type: permit
+          source: 
+            source_mac_address: 1111.2222.3333
+            source_mask: ffff.ffff.ffff
+          destination:
+            any: yes
+          log: yes
+          mirror: yes
+          ether_type: 0800
 
+  - name: create only mac acl 
+    icx_acl_mac:
+      acl_name: mac123
+    register: output        
+         
+  - name: remove mac acl
+    icx_acl_mac:
+      acl_name: mac123
+      state: absent
+"""
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.connection import ConnectionError, exec_command
 from ansible_collections.community.network.plugins.module_utils.network.icx.icx import load_config
