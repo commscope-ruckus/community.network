@@ -155,7 +155,115 @@ options:
         default: present
         choices: ['present', 'absent']
 """
+EXAMPLES = """
+- name: ipv4,ipv6,MAC ACLs assign to same ethernet interface
+  community.network.icx_acl_assign:
+    ip_access_group:
+      acl_name: scale12
+      in_out: in
+      ethernet: 1/1/3   
+    ipv6_access_group:
+      acl_name: scale12
+      in_out: in
+      ethernet: 1/1/3 
+      logging: enable
+    mac_access_group:
+      mac_acl_name: mac_acl
+      ethernet: 1/1/3
 
+- name: ipv4,ipv6,MAC ACLs assign to same lag interface
+  community.network.icx_acl_assign:
+    ip_access_group:
+      acl_name: scale12
+      in_out: in
+      lag: 7   
+    ipv6_access_group:
+      acl_name: scale12
+      in_out: in
+      lag: 7 
+      logging: enable
+    mac_access_group:
+      mac_acl_name: mac_acl
+      lag: 7
+      logging: disable
+- name: ipv4,ipv6,MAC ACLs assign to same vlan interface
+  community.network.icx_acl_assign:
+    ip_access_group:
+      acl_name: scale12
+      in_out: in
+      vlan:
+        vlan_num: 10 
+    ipv6_access_group:
+      acl_name: scale12
+      in_out: in
+      vlan:
+        vlan_num: 10 
+      logging: enable
+    mac_access_group:
+      mac_acl_name: mac_acl
+      vlan:
+        vlan_num: 10 
+- name: Each acl assigned to different interfaces ip:ethernet, ipv6:lag, mac:vlan
+  community.network.icx_acl_assign:
+    ip_access_group:
+      acl_name: scale12
+      in_out: in
+      ethernet: 1/1/3
+    ipv6_access_group:
+      acl_name: scale12
+      in_out: in
+      lag: 7 
+      logging: enable
+    mac_access_group:
+      mac_acl_name: mac_acl
+      vlan:
+        vlan_num: 10
+- name: Each acl assigned to different vlan ip:vlan10, ipv6:vlan555, mac:vlan20
+  community.network.icx_acl_assign:
+    ip_access_group:
+      acl_name: scale12
+      in_out: in
+      vlan:
+        vlan_num: 10 
+    ipv6_access_group:
+      acl_name: scale12
+      in_out: in
+      vlan:
+        vlan_num: 555 
+      logging: enable
+    mac_access_group:
+      mac_acl_name: mac_acl
+      vlan:
+        vlan_num: 20 
+- name: Each acl assigned to same vlan, but different ethernet and lag of the vlan
+  community.network.icx_acl_assign:
+    ip_access_group:
+      acl_name: scale12
+      in_out: in
+      vlan:
+        vlan_num: 10
+        interfaces:
+          - ethernet 1/1/3 
+    ipv6_access_group:
+      acl_name: scale12
+      in_out: in
+      vlan:
+        vlan_num: 10
+        interfaces:
+          - lag 7 
+      logging: enable
+    mac_access_group:
+      mac_acl_name: mac_acl
+      vlan:
+        vlan_num: 10
+        interfaces:
+          - ethernet 1/1/18 to 1/1/21    
+    default_acl:
+      ip_type: ipv4
+      acl_id: 10
+      in_out: in
+      state: present
+"""
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.connection import ConnectionError, exec_command
 from ansible_collections.community.network.plugins.module_utils.network.icx.icx import load_config
