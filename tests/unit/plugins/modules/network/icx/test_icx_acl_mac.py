@@ -75,7 +75,7 @@ class TestICXAclMacModule(TestICXModule):
         self.assertEqual(result['commands'], expected_commands)
 
     def test_icx_invalid_mac_acl_deny(self):
-        ''' Test for invalid mac rule_type'''
+        ''' Test for invalid mac_rule_type'''
         set_module_args(dict(acl_name='mac123',
                              rule=[(dict(rule_type='aa',source=dict(source_mac_address='1111.2222.3333'),destination=dict(any='yes'),log='yes'))]))
         result = self.execute_module(failed=True)
