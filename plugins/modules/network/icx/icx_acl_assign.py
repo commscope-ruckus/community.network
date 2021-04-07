@@ -33,7 +33,7 @@ options:
         choices: ['in','out']
       ethernet:
         description: Applies ACL to ethernet interface. Format - 1/1/1
-        type: string
+        type: str
       lag:
         description: Applies ACL to lag interface.
         type: int
@@ -47,6 +47,7 @@ options:
           interfaces:
             description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg - [ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
+            elements: dict
       logging:
         description: Enables/Disables logging for matched statements in the ACL that also include a log action.
         type: str
@@ -74,7 +75,7 @@ options:
         choices: ['in','out']
       ethernet:
         description: Applies ACL to ethernet interface. Format-1/1/1
-        type: string
+        type: str
       lag:
         description: Applies ACL to lag interface.
         type: int
@@ -88,6 +89,7 @@ options:
           interfaces:
             description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg - [ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
+            elements: dict
       logging:
         description: Enables/Disables logging for matched statements in the ACL that also include a log action.
         type: str
@@ -107,7 +109,7 @@ options:
         required: true
       ethernet:
         description: Applies ACL to ethernet interface. Format- 1/1/1
-        type: string
+        type: str
       lag:
         description: Applies ACL to lag interface.
         type: int
@@ -121,6 +123,7 @@ options:
           interfaces:
             description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg-[ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
+            elements: dict
       logging:
         description: Enables/Disables logging for matched statements in the ACL that also include a log action.
         type: str
@@ -241,23 +244,23 @@ EXAMPLES = """
       acl_name: scale12
       in_out: in
       vlan:
-        vlan_num: 10
+        vlan_num: 555
         interfaces:
-          - ethernet 1/1/3 
+          - ethernet 1/1/2 
     ipv6_access_group:
       acl_name: scale12
       in_out: in
       vlan:
-        vlan_num: 10
+        vlan_num: 555
         interfaces:
-          - lag 7 
+          - lag 25 
       logging: enable
     mac_access_group:
       mac_acl_name: mac_acl
       vlan:
-        vlan_num: 10
+        vlan_num: 555
         interfaces:
-          - ethernet 1/1/18 to 1/1/21    
+          - ethernet 1/1/15 to 1/1/16    
     default_acl:
       ip_type: ipv4
       acl_id: 10
@@ -411,7 +414,7 @@ def main():
     """
     vlan_spec = dict(
         vlan_num=dict(type='int'),
-        interfaces=dict(type='list')
+        interfaces=dict(type='list', elements='dict')
     )
 
     ip_access_group_spec = dict(
@@ -466,7 +469,6 @@ def main():
     
 
     module = AnsibleModule(argument_spec=argument_spec,
-                           mutually_exclusive=mutually_exclusive,
                            supports_check_mode=True)
 
     warnings = list()
