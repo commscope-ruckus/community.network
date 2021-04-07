@@ -241,23 +241,23 @@ EXAMPLES = """
       acl_name: scale12
       in_out: in
       vlan:
-        vlan_num: 10
+        vlan_num: 555
         interfaces:
           - ethernet 1/1/3 
     ipv6_access_group:
       acl_name: scale12
       in_out: in
       vlan:
-        vlan_num: 10
+        vlan_num: 555
         interfaces:
-          - lag 7 
+          - lag 25 
       logging: enable
     mac_access_group:
       mac_acl_name: mac_acl
       vlan:
-        vlan_num: 10
+        vlan_num: 555
         interfaces:
-          - ethernet 1/1/18 to 1/1/21    
+          - ethernet 1/1/15 to 1/1/16    
     default_acl:
       ip_type: ipv4
       acl_id: 10
