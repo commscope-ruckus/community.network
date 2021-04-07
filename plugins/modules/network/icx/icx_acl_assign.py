@@ -457,7 +457,7 @@ def main():
     )
 
     required_one_of = [['acl_name', 'acl_num', 'frag_deny']]
-    mutually_exclusive = [['acl_name', 'acl_num', 'frag_deny']]
+    mutually_exclusive = [('acl_name', 'acl_num'), ('acl_name', 'frag_deny'), ('acl_num', 'frag_deny')]
     argument_spec = dict(
         ip_access_group=dict(type='dict', options=ip_access_group_spec, required_one_of=required_one_of, mutually_exclusive = mutually_exclusive),
         ipv6_access_group=dict(type='dict', options=ipv6_access_group_spec),
