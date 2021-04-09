@@ -45,7 +45,7 @@ options:
             type: bool
             default: no
       destination:
-        description: destination_mac_address| destination_mask | any 
+        description: destination_mac_address destination_mask | any 
         type: dict
         required: True
         suboptions:
