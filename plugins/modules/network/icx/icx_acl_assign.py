@@ -39,7 +39,7 @@ options:
         type: int
       vlan:
         description: Applies ACL to vlan through virtual routing interface.
-        type: dict
+        type: dict 
         suboptions:
           vlan_num:
             description: Router interface ve
@@ -47,7 +47,7 @@ options:
           interfaces:
             description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg - [ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
-            elements: dict
+            elements: str      
       logging:
         description: Enables/Disables logging for matched statements in the ACL that also include a log action.
         type: str
@@ -81,7 +81,7 @@ options:
         type: int
       vlan:
         description: Applies ACL to vlan through virtual routing interface.
-        type: dict
+        type: dict        
         suboptions:
           vlan_num:
             description: Router interface ve
@@ -89,7 +89,8 @@ options:
           interfaces:
             description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg - [ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
-            elements: dict
+            elements: str
+            
       logging:
         description: Enables/Disables logging for matched statements in the ACL that also include a log action.
         type: str
@@ -115,7 +116,7 @@ options:
         type: int
       vlan:
         description: Applies ACL to vlan through virtual routing interface.
-        type: dict
+        type: dict          
         suboptions:
           vlan_num:
             description: Router interface ve
@@ -123,7 +124,8 @@ options:
           interfaces:
             description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg-[ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
-            elements: dict
+            elements: str
+            
       logging:
         description: Enables/Disables logging for matched statements in the ACL that also include a log action.
         type: str
@@ -414,7 +416,7 @@ def main():
     """
     vlan_spec = dict(
         vlan_num=dict(type='int'),
-        interfaces=dict(type='list', elements='dict')
+        interfaces=dict(type='list', elements='str')
     )
 
     ip_access_group_spec = dict(
@@ -457,17 +459,14 @@ def main():
     )
 
     required_one_of = [['acl_name', 'acl_num', 'frag_deny']]
-    mutually_exclusive = [('acl_name', 'acl_num'), ('acl_name', 'frag_deny'), ('acl_num', 'frag_deny')]
+    mutually_exclusive = [('acl_name', 'frag_deny'), ('acl_num', 'frag_deny'), ('acl_name', 'acl_num')]
     argument_spec = dict(
         ip_access_group=dict(type='dict', options=ip_access_group_spec, required_one_of=required_one_of, mutually_exclusive = mutually_exclusive),
         ipv6_access_group=dict(type='dict', options=ipv6_access_group_spec),
         mac_access_group=dict(type='dict', options=mac_access_group_spec),
         default_acl=dict(type='dict', options=default_acl_spec)
     )
-
     
-    
-
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=True)
 
