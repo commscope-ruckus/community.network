@@ -39,7 +39,7 @@ options:
         type: int
       vlan:
         description: Applies ACL to vlan through virtual routing interface.
-        type: dict 
+        type: dict
         suboptions:
           vlan_num:
             description: Router interface ve
@@ -47,7 +47,19 @@ options:
           interfaces:
             description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg - [ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
-            elements: str      
+            elements: str
+      mirror_port:
+        description: Configures ACL-based inbound mirroring.
+        type: dict
+        suboptions:
+          ethernet:
+            description: Specifies the mirror port to which the monitored port traffic is copied.
+            type: str
+          state: 
+            description: Configures/Removes the ACL mirror port.
+            type: str
+            default: present
+            choices: ['present', 'absent']
       logging:
         description: Enables/Disables logging for matched statements in the ACL that also include a log action.
         type: str
@@ -81,7 +93,7 @@ options:
         type: int
       vlan:
         description: Applies ACL to vlan through virtual routing interface.
-        type: dict        
+        type: dict
         suboptions:
           vlan_num:
             description: Router interface ve
@@ -90,7 +102,18 @@ options:
             description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg - [ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
             elements: str
-            
+      mirror_port:
+        description: Configures ACL-based inbound mirroring.
+        type: dict
+        suboptions:
+          ethernet:
+            description: Specifies the mirror port to which the monitored port traffic is copied.
+            type: str
+          state: 
+            description: Configures/Removes the ACL mirror port.
+            type: str
+            default: present
+            choices: ['present', 'absent']
       logging:
         description: Enables/Disables logging for matched statements in the ACL that also include a log action.
         type: str
@@ -116,7 +139,7 @@ options:
         type: int
       vlan:
         description: Applies ACL to vlan through virtual routing interface.
-        type: dict          
+        type: dict
         suboptions:
           vlan_num:
             description: Router interface ve
@@ -125,7 +148,18 @@ options:
             description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg-[ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
             elements: str
-            
+      mirror_port:
+        description: Configures ACL-based inbound mirroring.
+        type: dict
+        suboptions:
+          ethernet:
+            description: Specifies the mirror port to which the monitored port traffic is copied.
+            type: str
+          state: 
+            description: Configures/Removes the ACL mirror port.
+            type: str
+            default: present
+            choices: ['present', 'absent']
       logging:
         description: Enables/Disables logging for matched statements in the ACL that also include a log action.
         type: str
@@ -264,6 +298,12 @@ def build_command(
         if ip_access_group['ethernet'] is not None:
             cmd = "interface ethernet {}".format(ip_access_group['ethernet'])
             cmds.append(cmd)
+            if ip_access_group['mirror_port'] is not None:
+                if ip_access_group['mirror_port']['state'] == 'absent':
+                    cmd = "no acl-mirror-port ethernet {}".format(ip_access_group['mirror_port']['ethernet'])
+                else:
+                    cmd = "acl-mirror-port ethernet {}".format(ip_access_group['mirror_port']['ethernet']) 
+                cmds.append(cmd)
 
         elif ip_access_group['lag'] is not None:
             cmd = "interface lag {}".format(ip_access_group['lag'])
@@ -311,6 +351,12 @@ def build_command(
         if ipv6_access_group['ethernet'] is not None:
             cmd = "interface ethernet {}".format(ipv6_access_group['ethernet'])
             cmds.append(cmd)
+            if ipv6_access_group['mirror_port'] is not None:
+                if ipv6_access_group['mirror_port']['state'] == 'absent':
+                    cmd = "no acl-mirror-port ethernet {}".format(ipv6_access_group['mirror_port']['ethernet'])
+                else:
+                    cmd = "acl-mirror-port ethernet {}".format(ipv6_access_group['mirror_port']['ethernet']) 
+                cmds.append(cmd)
 
         elif ipv6_access_group['lag'] is not None:
             cmd = "interface lag {}".format(ipv6_access_group['lag'])
@@ -343,6 +389,12 @@ def build_command(
         if mac_access_group['ethernet'] is not None:
             cmd = "interface ethernet {}".format(mac_access_group['ethernet'])
             cmds.append(cmd)
+            if mac_access_group['mirror_port'] is not None:
+                if mac_access_group['mirror_port']['state'] == 'absent':
+                    cmd = "no acl-mirror-port ethernet {}".format(mac_access_group['mirror_port']['ethernet'])
+                else:
+                    cmd = "acl-mirror-port ethernet {}".format(mac_access_group['mirror_port']['ethernet']) 
+                cmds.append(cmd)
         elif mac_access_group['lag'] is not None:
             cmd = "interface lag {}".format(mac_access_group['lag'])
             cmds.append(cmd)
@@ -396,7 +448,10 @@ def main():
         vlan_num=dict(type='int'),
         interfaces=dict(type='list', elements='str')
     )
-
+    mirror_port_spec = dict(
+        ethernet=dict(type='str'),
+        state=dict(type='str', default='present', choices=['present', 'absent'])
+    )
     ip_access_group_spec = dict(
         acl_num=dict(type='int'),
         acl_name=dict(type='str'),
@@ -404,6 +459,7 @@ def main():
         ethernet=dict(type='str'),
         lag=dict(type='int'),
         vlan=dict(type='dict', options=vlan_spec),
+        mirror_port = dict(type='dict', options= mirror_port_spec),
         logging=dict(type='str', choices=['enable', 'disable']),
         frag_deny=dict(type='bool', default='no'),
         state=dict(type='str', default='present', choices=['present', 'absent'])
@@ -415,6 +471,7 @@ def main():
         ethernet=dict(type='str'),
         lag=dict(type='int'),
         vlan=dict(type='dict', options=vlan_spec),
+        mirror_port = dict(type='dict', options= mirror_port_spec),
         logging=dict(type='str', choices=['enable', 'disable']),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
@@ -424,6 +481,7 @@ def main():
         ethernet=dict(type='str'),
         lag=dict(type='int'),
         vlan=dict(type='dict', options=vlan_spec),
+        mirror_port = dict(type='dict', options= mirror_port_spec),
         logging=dict(type='str', choices=['enable', 'disable']),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
@@ -444,7 +502,7 @@ def main():
         mac_access_group=dict(type='dict', options=mac_access_group_spec),
         default_acl=dict(type='dict', options=default_acl_spec)
     )
-    
+
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=True)
 
