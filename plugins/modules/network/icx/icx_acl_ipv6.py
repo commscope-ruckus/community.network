@@ -20,11 +20,27 @@ options:
     description: Specifies a unique ACL name.
     type: str
     required: true
+  accounting:
+    description: Enables/Disables accounting for the ipv6 ACL.
+    type: str
+    choices: ['enable', 'disable']
   rules:
     description: Inserts filtering rules in IPv6 access control lists.
     type: list
     elements: dict
     suboptions: 
+      remark:
+        description: Adds a comment to describe entries in IPv6 ACL.
+        type: dict
+        suboptions:
+          comment_text:
+            description: Specifies the comment for the ACL entry, up to 256 alphanumeric characters.
+            type: str
+          state:
+            description: Add/Delete the comment text for an ACL entry.
+            type: str
+            default: present
+            choices: ['present', 'absent']
       seq_num:
         description: Enables you to assign a sequence number to the rule. Valid values range from 1 through 65000.
         type: int
@@ -53,7 +69,8 @@ options:
             type: str
           any:
             description: Specifies all source addresses.
-            type: bool            
+            type: bool
+            default: no            
       destination:
         description: ipv6-source-prefix/prefix-length | host source-ipv6_address | any. 
         type: dict
@@ -206,18 +223,33 @@ from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.connection import ConnectionError,exec_command
 from ansible_collections.community.network.plugins.module_utils.network.icx.icx import load_config
 
-def build_command(module, acl_name= None, rules = None, state= None):
+def build_command(module, acl_name= None, accounting= None, rules = None, state= None):
 
-    acl_cmds = []
-    rules_acl_cmds = [] 
+    acl_cmds = [] 
+    rules_acl_cmds =[]
+
     if state == 'absent':
         cmd = "no ipv6 access-list {}".format(acl_name)
     else:
         cmd = "ipv6 access-list {}".format(acl_name)
     acl_cmds.append(cmd)
+    
+    if accounting == 'disable':
+        cmd = "no enable accounting"
+        acl_cmds.append(cmd)
+    elif accounting == 'enable':
+        cmd = "enable accounting"
+        acl_cmds.append(cmd)
+    
 
     if rules is not None:
-        for rule in rules:  
+        for rule in rules: 
+            if rule['remark'] is not None:
+                if rule['remark']['state'] == 'absent':
+                    cmd = "no remark {}".format(rule['remark']['comment_text'])
+                else:
+                    cmd = "remark {}".format(rule['remark']['comment_text'])
+                rules_acl_cmds.append(cmd)           
             cmd = ""           
             if rule['state'] == 'absent':
                 cmd+="no "
@@ -480,7 +512,7 @@ def build_command(module, acl_name= None, rules = None, state= None):
                         cmd+=" mirror"
 
             rules_acl_cmds.append(cmd)
-
+    
     cmds = acl_cmds + rules_acl_cmds
     return cmds          
             
@@ -488,7 +520,10 @@ def main():
 
     """entry point for module execution
     """ 
-
+    remark_spec = dict(
+      comment_text = dict(type='str'),
+      state = dict(type='str', default='present', choices=['present', 'absent'])
+    )
     source_spec = dict(
         host_ipv6_address=dict(type='str'),
         ipv6_prefix_prefix_length=dict(type='str'),
@@ -514,6 +549,7 @@ def main():
         high_port_name=dict(type='str', choices = ['ftp-data','ftp','ssh','telnet','smtp','dns','http','gppitnp','pop2','pop3','sftp','sqlserv','bgp','ldap','ssl','tftp','snmp'])
     )  
     rules_spec = dict(
+        remark = dict(type='dict',options= remark_spec),
         seq_num = dict(type='int'),
         rule_type = dict(type='str', choices=['deny', 'permit'], required = True),
         ip_protocol_name = dict(type='str', choices=['ahp', 'esp', 'icmp', 'ipv6', 'sctp', 'tcp', 'udp']),
@@ -541,6 +577,7 @@ def main():
     mutually_exclusive = [['ip_protocol_name','ip_protocol_num']]
     argument_spec = dict(
         acl_name= dict(type='str',required= True),
+        accounting= dict(type='str', choices=['enable', 'disable']),
         rules= dict(type='list', elements='dict', options=rules_spec, required_one_of = required_one_of, mutually_exclusive =mutually_exclusive),
         state= dict(type='str', default='present', choices=['present', 'absent'])
     )
@@ -549,6 +586,7 @@ def main():
     warnings = list()
     results = {'changed': False}
     acl_name = module.params["acl_name"]
+    accounting = module.params["accounting"]
     rules = module.params["rules"]
     state = module.params["state"]
 
@@ -556,7 +594,7 @@ def main():
         result['warnings'] = warnings 
 
 
-    commands = build_command(module, acl_name, rules, state)
+    commands = build_command(module, acl_name, accounting, rules, state)
     results['commands'] = commands
 
     if commands:
