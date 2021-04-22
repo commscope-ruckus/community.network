@@ -29,11 +29,27 @@ options:
   acl_id:
     description: Specifies a unique ACL number.
     type: int
+  accounting:
+    description: Enables/Disables accounting for the ipv6 ACL.
+    type: str
+    choices: ['enable', 'disable']
   standard_rules:
     description: Inserts filtering rules in standard named or numbered ACLs that will deny or permit packets.
     type: list
     elements: dict
     suboptions:
+      remark:
+        description: Adds a comment to describe entries in IPv6 ACL.
+        type: dict
+        suboptions:
+          comment_text:
+            description: Specifies the comment for the ACL entry, up to 256 alphanumeric characters.
+            type: str
+          state:
+            description: Add/Delete the comment text for an ACL entry.
+            type: str
+            default: present
+            choices: ['present', 'absent']
       seq_num:
         description: Enables you to assign a sequence number to the rule. Valid values range from 1 through 65000.
         type: int
@@ -76,6 +92,18 @@ options:
     type: list
     elements: dict
     suboptions:
+      remark:
+        description: Adds a comment to describe entries in IPv6 ACL.
+        type: dict
+        suboptions:
+          comment_text:
+            description: Specifies the comment for the ACL entry, up to 256 alphanumeric characters.
+            type: str
+          state:
+            description: Add/Delete the comment text for an ACL entry.
+            type: str
+            default: present
+            choices: ['present', 'absent']
       seq_num:
         description: Enables you to assign a sequence number to the rule. Valid values range from 1 through 65000.
         type: int
@@ -284,7 +312,7 @@ from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.connection import ConnectionError,exec_command
 from ansible_collections.community.network.plugins.module_utils.network.icx.icx import load_config
 
-def build_command(module, acl_type= None, acl_name= None, acl_id= None, standard_rules = None, extended_rules= None, state= None):
+def build_command(module, acl_type= None, acl_name= None, acl_id= None, accounting= None, standard_rules = None, extended_rules= None, state= None):
 
     acl_cmds = []
     if state == 'absent':
@@ -297,12 +325,26 @@ def build_command(module, acl_type= None, acl_name= None, acl_id= None, standard
         cmd+=" {}".format(acl_id)
     acl_cmds.append(cmd)
 
+    if accounting == 'disable':
+        cmd = "no enable accounting"
+        acl_cmds.append(cmd)
+    elif accounting == 'enable':
+        cmd = "enable accounting"
+        acl_cmds.append(cmd)
+    
+
     extended_rule_cmds = []
     standard_rule_cmds = []
 
     if acl_type == 'standard':
         if standard_rules is not None:
             for rule in standard_rules:
+                if rule['remark'] is not None:
+                    if rule['remark']['state'] == 'absent':
+                        cmd = "no remark {}".format(rule['remark']['comment_text'])
+                    else:
+                        cmd = "remark {}".format(rule['remark']['comment_text'])
+                    standard_rule_cmds.append(cmd)
                 cmd = ""           
                 if rule['state'] == 'absent':
                     cmd+="no "
@@ -335,7 +377,13 @@ def build_command(module, acl_type= None, acl_name= None, acl_id= None, standard
 
     elif acl_type == 'extended':
         if extended_rules is not None:
-            for rule in extended_rules:              
+            for rule in extended_rules: 
+                if rule['remark'] is not None:
+                    if rule['remark']['state'] == 'absent':
+                        cmd = "no remark {}".format(rule['remark']['comment_text'])
+                    else:
+                        cmd = "remark {}".format(rule['remark']['comment_text'])
+                    extended_rule_cmds.append(cmd)             
                 cmd = ""           
                 if rule['state'] == 'absent':
                     cmd+="no "
@@ -500,6 +548,10 @@ def build_command(module, acl_type= None, acl_name= None, acl_id= None, standard
 def main():
     """entry point for module execution
     """ 
+    remark_spec = dict(
+      comment_text = dict(type='str'),
+      state = dict(type='str', default='present', choices=['present', 'absent'])
+    )
     source_spec = dict(
         host = dict(type='bool'),
         ip_address = dict(type='str'),
@@ -529,6 +581,7 @@ def main():
         high_port_name=dict(type='str', choices = ['ftp-data','ftp','ssh','telnet','smtp','dns','http','gppitnp','pop2','pop3','sftp','sqlserv','bgp','ldap','ssl','tftp','snmp'])
     )  
     standard_rules_spec = dict(
+        remark = dict(type='dict',options= remark_spec),
         seq_num = dict(type='int'),
         rule_type = dict(type='str', required= True, choices=['deny', 'permit']),
         host = dict(type='bool'),
@@ -541,6 +594,7 @@ def main():
         state= dict(type='str', default='present', choices=['present', 'absent'])   
     )
     extended_rules_spec = dict(
+        remark = dict(type='dict',options= remark_spec),
         seq_num = dict(type='int'),
         rule_type = dict(type='str', required= True, choices=['deny', 'permit']),
         ip_protocol_name = dict(type='str', choices=['icmp','igmp','ip','ospf','tcp','udp','esp','gre','ipv6','pim','rsvp']),
@@ -571,6 +625,7 @@ def main():
         acl_type= dict(type='str', required = True, choices=['standard','extended']),
         acl_name= dict(type='str'),
         acl_id= dict(type='int'),
+        accounting= dict(type='str', choices=['enable', 'disable']),
         standard_rules= dict(type='list', elements='dict', options=standard_rules_spec, required_one_of = required_one_of,required_if = [('host',True,('source_ip','hostname'),True)]),
         extended_rules= dict(type='list', elements='dict', options=extended_rules_spec,required_one_of = [['ip_protocol_name','ip_protocol_num']],mutually_exclusive = mutually_exclusive),
         state= dict(type='str', default='present', choices=['present', 'absent'])
@@ -587,13 +642,14 @@ def main():
     acl_type = module.params["acl_type"]
     acl_name = module.params["acl_name"]
     acl_id = module.params["acl_id"]
+    accounting = module.params["accounting"]
     standard_rules = module.params.get("standard_rules")
     extended_rules = module.params.get("extended_rules")
     state = module.params["state"]
 
     if warnings:
         result['warnings'] = warnings 
-    commands = build_command(module, acl_type, acl_name, acl_id, standard_rules, extended_rules, state)
+    commands = build_command(module, acl_type, acl_name, acl_id, accounting, standard_rules, extended_rules, state)
     results['commands'] = commands
 
     if commands:
