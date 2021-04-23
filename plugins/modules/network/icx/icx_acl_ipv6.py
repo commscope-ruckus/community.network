@@ -69,8 +69,7 @@ options:
             type: str
           any:
             description: Specifies all source addresses.
-            type: bool
-            default: no            
+            type: bool           
       destination:
         description: ipv6-source-prefix/prefix-length | host source-ipv6_address | any. 
         type: dict
