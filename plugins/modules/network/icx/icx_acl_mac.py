@@ -27,15 +27,17 @@ options:
   rule:
     description: Inserts filtering rules in mac access control list
     type: list
-    element: dict
+    elements: dict
     suboptions:
       rule_type:
         description: Inserts filtering rules in IPv4 standard named or numbered ACLs that will deny/permit packets.
         type: str
+        required: true
         choices: ['deny', 'permit']
       source:
-        description: {source_mac_address | source_mask | any }
+        description: source_mac_address | source_mask | any 
         type: dict
+        required: true
         suboptions:
           source_mac_address:
             description: HHHH.HHHH.HHHH Source Ethernet MAC address.
@@ -48,8 +50,9 @@ options:
             type: bool
             default: no
       destination:
-        description: {destination_mac_address destination_mask | any }
+        description: destination_mac_address destination_mask | any 
         type: dict
+        required: true
         suboptions:
           destination_mac_address:
             description: HHHH.HHHH.HHHH Destination Ethernet MAC address.
@@ -62,9 +65,11 @@ options:
             type: bool
             default: no
       log:
+        description: Enables SNMP traps and syslog messages for the rule.
         type: bool
         default: no
       mirror:
+        description: Mirrors packets matching the rule.
         type: bool
         default: no
       ether_type:
@@ -76,54 +81,54 @@ options:
         default: present
         choices: ['present', 'absent']
   state:
-  description: Create/Remove an IPv6 access control list (ACL).
-  type: str
-  default: present
-  choices: ['present', 'absent']
+    description: Create/Remove an IPv6 access control list (ACL).
+    type: str
+    default: present
+    choices: ['present', 'absent']
 """
 EXAMPLES = """
 - name: create mac acl and add rules
-    community.network.icx_acl_mac:
-      acl_name: mac123
-      rule:
-        - rule_type: permit
-          source: 
-            source_mac_address: 1111.2222.3333
-            source_mask: ffff.ffff.ffff
-            any: yes
-          destination:
-            destination_mac_address: 4444.5555.6666
-            destination_mask: ffff.ffff.ffff
-            any: yes
-        - rule_type: permit
-          source: 
-            source_mac_address: 1111.2222.3333
-            source_mask: ffff.ffff.ffff
-            any: yes
-          destination:
-            destination_mac_address: 4444.5555.6666
-            destination_mask: ffff.ffff.ffff
-            any: yes
-          state: absent
-        - rule_type: permit
-          source: 
-            source_mac_address: 1111.2222.3333
-            source_mask: ffff.ffff.ffff
-          destination:
-            any: yes
-          log: yes
-          mirror: yes
-          ether_type: 0800
+  community.network.icx_acl_mac:
+    acl_name: mac123
+    rule:
+      - rule_type: permit
+        source: 
+          source_mac_address: 1111.2222.3333
+          source_mask: ffff.ffff.ffff
+          any: yes
+        destination:
+          destination_mac_address: 4444.5555.6666
+          destination_mask: ffff.ffff.ffff
+          any: yes
+      - rule_type: permit
+        source: 
+          source_mac_address: 1111.2222.3333
+          source_mask: ffff.ffff.ffff
+          any: yes
+        destination:
+          destination_mac_address: 4444.5555.6666
+          destination_mask: ffff.ffff.ffff
+          any: yes
+        state: absent
+      - rule_type: permit
+        source: 
+          source_mac_address: 1111.2222.3333
+          source_mask: ffff.ffff.ffff
+        destination:
+          any: yes
+        log: yes
+        mirror: yes
+        ether_type: 0800
 
-  - name: create only mac acl 
-    icx_acl_mac:
-      acl_name: mac123
-    register: output        
-         
-  - name: remove mac acl
-    icx_acl_mac:
-      acl_name: mac123
-      state: absent
+- name: create only mac acl 
+  icx_acl_mac:
+    acl_name: mac123
+  register: output        
+        
+- name: remove mac acl
+  icx_acl_mac:
+    acl_name: mac123
+    state: absent
 """
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.connection import ConnectionError, exec_command
