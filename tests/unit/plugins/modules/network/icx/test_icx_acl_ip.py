@@ -52,20 +52,38 @@ class TestICXAclIpModule(TestICXModule):
                              'no sequence 10 permit tcp 2.2.2.2 0.0.0.0 eq 22 any range ftp http established precedence network tos min-delay dscp-matching 32 802.1p-priority-matching 6 dscp-marking 8 802.1p-and-internal-marking 7'] 
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)
+
+    def test_icx_acl_ip_extended_enable_accounting(self):
+        ''' Test for successful extended acl ipV4 enable accounting'''
+        set_module_args(dict(acl_type ='extended', acl_name = 'acl1', accounting = 'enable'))
+        expected_commands = ['ip access-list extended acl1',
+                             'enable accounting']
+        result = self.execute_module(changed=True)
+        self.assertEqual(result['commands'], expected_commands)       
+    def test_icx_acl_ip_extended_disable_accounting(self):
+        ''' Test for removing extended acl ipV4 disable accounting'''
+        set_module_args(dict(acl_type = 'extended',acl_name='acl1',state='absent', accounting = 'disable'))
+        expected_commands = ['no ip access-list extended acl1',
+                             'no enable accounting'] 
+        result = self.execute_module(changed=True)
+        self.assertEqual(result['commands'], expected_commands)
+    
     def test_icx_acl_ip_standard_all_options(self):
         ''' Test for successful standard ipv4 and rule with all options'''
-        set_module_args(dict(acl_type='standard',acl_name='acl1',
+        set_module_args(dict(acl_type='standard',acl_name='acl1', accounting = 'enable',
                              standard_rules=[(dict(seq_num='10',rule_type='permit',host='yes',source_ip='2.2.2.2',log='yes',mirror='yes'))]))
         expected_commands = ['ip access-list standard acl1',
+                             'enable accounting',
                              'sequence 10 permit host 2.2.2.2 log mirror']
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)
 
     def test_icx_acl_ip_standard_all_options_remove(self):
         ''' Test for removing standard ipv4 and rule with all options'''
-        set_module_args(dict(acl_type='standard',acl_name='acl1',state='absent',
+        set_module_args(dict(acl_type='standard',acl_name='acl1',state='absent',  accounting = 'disable',
                              standard_rules=[(dict(seq_num='10',rule_type='permit',host='yes',source_ip='2.2.2.2',log='yes',mirror='yes',state='absent'))]))
         expected_commands = ['no ip access-list standard acl1',
+                             'no enable accounting',
                              'no sequence 10 permit host 2.2.2.2 log mirror']
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)
