@@ -30,11 +30,12 @@ class TestICXAclMacModule(TestICXModule):
 
     def test_icx_acl_mac_all_options(self):
         ''' Test for successful acl  with all options'''
-        set_module_args(dict(acl_name='mac123',
+        set_module_args(dict(acl_name='mac123', accounting='enable',
                              rule=[(dict(rule_type='permit',source=dict(any='yes'),destination=dict(any='yes'), ether_type='0800', log='yes', mirror='yes')),
                                    (dict(rule_type='permit',source=dict(source_mac_address='1111.2222.3333', source_mask='ffff.ffff.ffff'),destination=dict(destination_mac_address='4444.5555.6666', destination_mask='ffff.ffff.ffff'), ether_type='0800', log='yes', mirror='yes')),
                                    (dict(rule_type='permit',source=dict(source_mac_address='1111.2222.3333', source_mask='ffff.ffff.ffff'), destination=dict(any='yes'), ether_type='0800', log='yes', mirror='yes'))]))
         expected_commands = ['mac access-list mac123',
+                             'enable accounting',
                              'permit any any ether-type 0800 log mirror',     
                              'permit 1111.2222.3333 ffff.ffff.ffff 4444.5555.6666 ffff.ffff.ffff ether-type 0800 log mirror',
                              'permit 1111.2222.3333 ffff.ffff.ffff any ether-type 0800 log mirror'        
@@ -44,11 +45,12 @@ class TestICXAclMacModule(TestICXModule):
         
     def test_icx_acl_mac_all_options_remove(self):
         ''' Test for removing acl mac with all options'''
-        set_module_args(dict(acl_name='mac123',state='absent',
+        set_module_args(dict(acl_name='mac123',state='absent', accounting='disable',
                              rule=[(dict(rule_type='permit',source=dict(any='yes'),destination=dict(any='yes'), ether_type='0800', log='yes', mirror='yes', state='absent')),
                                    (dict(rule_type='permit',source=dict(source_mac_address='1111.2222.3333', source_mask='ffff.ffff.ffff'),destination=dict(destination_mac_address='4444.5555.6666', destination_mask='ffff.ffff.ffff'), ether_type='0800', log='yes', mirror='yes', state='absent')),
                                    (dict(rule_type='permit',source=dict(source_mac_address='1111.2222.3333', source_mask='ffff.ffff.ffff'), destination=dict(any='yes'), ether_type='0800', log='yes', mirror='yes', state='absent'))]))     
         expected_commands = ['no mac access-list mac123',
+                             'no enable accounting',
                              'no permit any any ether-type 0800 log mirror',     
                              'no permit 1111.2222.3333 ffff.ffff.ffff 4444.5555.6666 ffff.ffff.ffff ether-type 0800 log mirror',
                              'no permit 1111.2222.3333 ffff.ffff.ffff any ether-type 0800 log mirror'        
