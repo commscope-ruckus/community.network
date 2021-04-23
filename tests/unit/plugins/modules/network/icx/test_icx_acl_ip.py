@@ -32,24 +32,26 @@ class TestICXAclIpModule(TestICXModule):
         ''' Test for successful extended acl ipV4 and rules with all options'''
         set_module_args(dict(acl_type ='extended', acl_name = 'acl1',
                              extended_rules=[(dict(seq_num='10',rule_type='permit',ip_protocol_name='ip',source=dict(host='yes',ip_address='1.1.1.1'),destination=dict(ip_address='2.2.2.2',mask='0.0.0.0'),precedence='routine',tos='normal',dscp_matching='21',dscp_marking='8',priority_matching='6',priority_marking='6',internal_priority_marking='3',log='yes',mirror='yes')),
-                                   (dict(seq_num='20',rule_type='deny',ip_protocol_name='icmp',source=dict(any='yes'),destination=dict(ip_address='1.1.1.1',mask='0.0.0.0'),icmp_num='25',precedence='priority',tos='max-reliability',dscp_matching='21',dscp_marking='8',priority_matching='6',traffic_policy_name='policy1',log='yes',mirror='yes')),
-                                   (dict(seq_num='10',rule_type='permit',ip_protocol_name='tcp',source=dict(ip_address='2.2.2.2',mask='0.0.0.0'),destination=dict(any='yes'),source_comparison_operators=dict(operator='eq',port_num='22'),destination_comparison_operators=dict(operator='range',port_name='ftp',high_port_name='http'),established='yes',precedence='network',tos='min-delay',dscp_matching='32',dscp_marking='8',priority_matching='6',internal_marking='7'))]))
+                                   (dict(remark=dict(comment_text='This Denies icmp traffic'),seq_num='20',rule_type='deny',ip_protocol_name='icmp',source=dict(any='yes'),destination=dict(ip_address='1.1.1.1',mask='0.0.0.0'),icmp_num='25',precedence='priority',tos='max-reliability',dscp_matching='21',dscp_marking='8',priority_matching='6',traffic_policy_name='policy1',log='yes',mirror='yes')),
+                                   (dict(seq_num='30',rule_type='permit',ip_protocol_name='tcp',source=dict(ip_address='2.2.2.2',mask='0.0.0.0'),destination=dict(any='yes'),source_comparison_operators=dict(operator='eq',port_num='22'),destination_comparison_operators=dict(operator='range',port_name='ftp',high_port_name='http'),established='yes',precedence='network',tos='min-delay',dscp_matching='32',dscp_marking='8',priority_matching='6',internal_marking='7'))]))
         expected_commands = ['ip access-list extended acl1',
                              'sequence 10 permit ip host 1.1.1.1 2.2.2.2 0.0.0.0 precedence routine tos normal dscp-matching 21 802.1p-priority-matching 6 dscp-marking 8 802.1p-priority-marking 6 internal-priority-marking 3 log mirror',
+                             'remark This Denies icmp traffic',
                              'sequence 20 deny icmp any 1.1.1.1 0.0.0.0 25 precedence priority tos max-reliability dscp-matching 21 802.1p-priority-matching 6 dscp-marking 8 traffic-policy policy1 log mirror',
-                             'sequence 10 permit tcp 2.2.2.2 0.0.0.0 eq 22 any range ftp http established precedence network tos min-delay dscp-matching 32 802.1p-priority-matching 6 dscp-marking 8 802.1p-and-internal-marking 7']                                                                                                           
+                             'sequence 30 permit tcp 2.2.2.2 0.0.0.0 eq 22 any range ftp http established precedence network tos min-delay dscp-matching 32 802.1p-priority-matching 6 dscp-marking 8 802.1p-and-internal-marking 7']                                                                                                           
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)       
     def test_icx_acl_ip_extended_all_options_remove(self):
         ''' Test for removing extended acl ipV4 and rules with all options'''
         set_module_args(dict(acl_type = 'extended',acl_name='acl1',state='absent',
                              extended_rules=[(dict(seq_num='10',rule_type='permit',ip_protocol_name='ip',source=dict(host='yes',ip_address='1.1.1.1'),destination=dict(ip_address='2.2.2.2',mask='0.0.0.0'),precedence='routine',tos='normal',dscp_matching='21',dscp_marking='8',priority_matching='6',priority_marking='6',internal_priority_marking='3',log='yes',mirror='yes',state='absent')),
-                                   (dict(seq_num='20',rule_type='deny',ip_protocol_name='icmp',source=dict(any='yes'),destination=dict(ip_address='1.1.1.1',mask='0.0.0.0'),icmp_num='25',precedence='priority',tos='max-reliability',dscp_matching='21',dscp_marking='8',priority_matching='6',traffic_policy_name='policy1',log='yes',mirror='yes',state='absent')),
-                                   (dict(seq_num='10',rule_type='permit',ip_protocol_name='tcp',source=dict(ip_address='2.2.2.2',mask='0.0.0.0'),destination=dict(any='yes'),source_comparison_operators=dict(operator='eq',port_num='22'),destination_comparison_operators=dict(operator='range',port_name='ftp',high_port_name='http'),established='yes',precedence='network',tos='min-delay',dscp_matching='32',dscp_marking='8',priority_matching='6',internal_marking='7',state='absent'))]))
+                                   (dict(remark=dict(comment_text='This Denies icmp traffic',state='absent'),seq_num='20',rule_type='deny',ip_protocol_name='icmp',source=dict(any='yes'),destination=dict(ip_address='1.1.1.1',mask='0.0.0.0'),icmp_num='25',precedence='priority',tos='max-reliability',dscp_matching='21',dscp_marking='8',priority_matching='6',traffic_policy_name='policy1',log='yes',mirror='yes',state='absent')),
+                                   (dict(seq_num='30',rule_type='permit',ip_protocol_name='tcp',source=dict(ip_address='2.2.2.2',mask='0.0.0.0'),destination=dict(any='yes'),source_comparison_operators=dict(operator='eq',port_num='22'),destination_comparison_operators=dict(operator='range',port_name='ftp',high_port_name='http'),established='yes',precedence='network',tos='min-delay',dscp_matching='32',dscp_marking='8',priority_matching='6',internal_marking='7',state='absent'))]))
         expected_commands = ['no ip access-list extended acl1',
                              'no sequence 10 permit ip host 1.1.1.1 2.2.2.2 0.0.0.0 precedence routine tos normal dscp-matching 21 802.1p-priority-matching 6 dscp-marking 8 802.1p-priority-marking 6 internal-priority-marking 3 log mirror',
+                             'no remark This Denies icmp traffic',
                              'no sequence 20 deny icmp any 1.1.1.1 0.0.0.0 25 precedence priority tos max-reliability dscp-matching 21 802.1p-priority-matching 6 dscp-marking 8 traffic-policy policy1 log mirror',
-                             'no sequence 10 permit tcp 2.2.2.2 0.0.0.0 eq 22 any range ftp http established precedence network tos min-delay dscp-matching 32 802.1p-priority-matching 6 dscp-marking 8 802.1p-and-internal-marking 7'] 
+                             'no sequence 30 permit tcp 2.2.2.2 0.0.0.0 eq 22 any range ftp http established precedence network tos min-delay dscp-matching 32 802.1p-priority-matching 6 dscp-marking 8 802.1p-and-internal-marking 7'] 
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)
 
@@ -61,9 +63,9 @@ class TestICXAclIpModule(TestICXModule):
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)       
     def test_icx_acl_ip_extended_disable_accounting(self):
-        ''' Test for removing extended acl ipV4 disable accounting'''
-        set_module_args(dict(acl_type = 'extended',acl_name='acl1',state='absent', accounting = 'disable'))
-        expected_commands = ['no ip access-list extended acl1',
+        ''' Test for successful extended acl ipV4 disable accounting'''
+        set_module_args(dict(acl_type = 'extended',acl_name='acl1', accounting = 'disable'))
+        expected_commands = ['ip access-list extended acl1',
                              'no enable accounting'] 
         result = self.execute_module(changed=True)
         self.assertEqual(result['commands'], expected_commands)
