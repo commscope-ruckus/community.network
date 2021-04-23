@@ -20,19 +20,22 @@ options:
     description: Specifies a unique ACL name.
     type: str
     required: true
+  accounting:
+    description: Enables/Disables accounting for the ipv6 ACL.
+    type: str
+    choices: ['enable', 'disable']
   rule:
     description: Inserts filtering rules in mac access control list
     type: list
-    elements: dict
+    element: dict
     suboptions:
       rule_type:
         description: Inserts filtering rules in IPv4 standard named or numbered ACLs that will deny/permit packets.
         type: str
         choices: ['deny', 'permit']
       source:
-        description: source_mac_address soource_mask | any 
+        description: {source_mac_address | source_mask | any }
         type: dict
-        required: True
         suboptions:
           source_mac_address:
             description: HHHH.HHHH.HHHH Source Ethernet MAC address.
@@ -45,9 +48,8 @@ options:
             type: bool
             default: no
       destination:
-        description: destination_mac_address destination_mask | any 
+        description: {destination_mac_address destination_mask | any }
         type: dict
-        required: True
         suboptions:
           destination_mac_address:
             description: HHHH.HHHH.HHHH Destination Ethernet MAC address.
@@ -60,11 +62,9 @@ options:
             type: bool
             default: no
       log:
-        description: Enables SNMP traps and syslog messages for the rule.
         type: bool
         default: no
       mirror:
-        description: Mirrors packets matching the rule.
         type: bool
         default: no
       ether_type:
@@ -76,61 +76,60 @@ options:
         default: present
         choices: ['present', 'absent']
   state:
-    description: Create/Remove an IPv6 access control list (ACL).
-    type: str
-    default: present
-    choices: ['present', 'absent']
+  description: Create/Remove an IPv6 access control list (ACL).
+  type: str
+  default: present
+  choices: ['present', 'absent']
 """
 EXAMPLES = """
 - name: create mac acl and add rules
-  community.network.icx_acl_mac:
-    acl_name: mac123
-    rule:
-      - rule_type: permit
-        source: 
-          source_mac_address: 1111.2222.3333
-          source_mask: ffff.ffff.ffff
-          any: yes
-        destination:
-          destination_mac_address: 4444.5555.6666
-          destination_mask: ffff.ffff.ffff
-          any: yes
-      - rule_type: permit
-        source: 
-          source_mac_address: 1111.2222.3333
-          source_mask: ffff.ffff.ffff
-          any: yes
-        destination:
-          destination_mac_address: 4444.5555.6666
-          destination_mask: ffff.ffff.ffff
-          any: yes
-        state: absent
-      - rule_type: permit
-        source: 
-          source_mac_address: 1111.2222.3333
-          source_mask: ffff.ffff.ffff
-        destination:
-          any: yes
-        log: yes
-        mirror: yes
-        ether_type: 0800
+    community.network.icx_acl_mac:
+      acl_name: mac123
+      rule:
+        - rule_type: permit
+          source: 
+            source_mac_address: 1111.2222.3333
+            source_mask: ffff.ffff.ffff
+            any: yes
+          destination:
+            destination_mac_address: 4444.5555.6666
+            destination_mask: ffff.ffff.ffff
+            any: yes
+        - rule_type: permit
+          source: 
+            source_mac_address: 1111.2222.3333
+            source_mask: ffff.ffff.ffff
+            any: yes
+          destination:
+            destination_mac_address: 4444.5555.6666
+            destination_mask: ffff.ffff.ffff
+            any: yes
+          state: absent
+        - rule_type: permit
+          source: 
+            source_mac_address: 1111.2222.3333
+            source_mask: ffff.ffff.ffff
+          destination:
+            any: yes
+          log: yes
+          mirror: yes
+          ether_type: 0800
 
-- name: create only mac acl 
-  icx_acl_mac:
-    acl_name: mac123
-  register: output
-        
-        
-- name: remove mac acl
-  icx_acl_mac:
-    acl_name: mac123
-    state: absent
+  - name: create only mac acl 
+    icx_acl_mac:
+      acl_name: mac123
+    register: output        
+         
+  - name: remove mac acl
+    icx_acl_mac:
+      acl_name: mac123
+      state: absent
 """
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.connection import ConnectionError, exec_command
 from ansible_collections.community.network.plugins.module_utils.network.icx.icx import load_config
 
-def build_command(module, acl_name=None, rule=None, state=None):
+def build_command(module, acl_name=None, accounting= None, rule=None, state=None):
     """
     Function to build the command to send to the terminal for the switch
     to execute. All args come from the module's unique params.
@@ -143,6 +142,15 @@ def build_command(module, acl_name=None, rule=None, state=None):
     else:
         cmd = "mac access-list {}".format(acl_name)
     acl_cmds.append(cmd)
+
+    if accounting == 'disable':
+        cmd = "no enable accounting"
+        acl_cmds.append(cmd)
+    elif accounting == 'enable':
+        cmd = "enable accounting"
+        acl_cmds.append(cmd)
+    
+
     if rule is not None:
         for elements in rule:
             if elements['state'] == 'absent':
@@ -197,9 +205,9 @@ def main():
     )
 
     rule_spec = dict(
-        rule_type=dict(type='str', choices=['deny', 'permit']),
-        source=dict(type='dict', options=source_spec, required=True),
-        destination=dict(type='dict', options=destination_spec, required=True),
+        rule_type=dict(type='str', choices=['deny', 'permit'],required=True),
+        source=dict(type='dict', options=source_spec,required=True),
+        destination=dict(type='dict', options=destination_spec,required=True),
         log=dict(type='bool', default='no'),
         mirror=dict(type='bool', default='no'),
         ether_type=dict(type='str'),
@@ -208,6 +216,7 @@ def main():
 
     argument_spec = dict(
         acl_name=dict(type='str', required=True),
+        accounting= dict(type='str', choices=['enable', 'disable']),
         rule=dict(type='list', elements='dict', options=rule_spec),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
@@ -221,6 +230,7 @@ def main():
     warnings = list()
     results = {'changed': False}
     acl_name = module.params["acl_name"]
+    accounting = module.params["accounting"]
     rule = module.params["rule"]
     state = module.params["state"]
 
@@ -228,7 +238,7 @@ def main():
     if warnings:
         results['warnings'] = warnings
 
-    commands = build_command(module, acl_name, rule, state)
+    commands = build_command(module, acl_name, accounting, rule, state)
     results['commands'] = commands
 
     if commands:
