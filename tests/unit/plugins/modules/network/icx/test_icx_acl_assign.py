@@ -30,12 +30,13 @@ class TestICXAclAssignModule(TestICXModule):
 
     def test_icx_acl_assign_all_options(self):
         ''' Test for successful acl assign with all options'''
-        set_module_args(dict(ip_access_group=dict(acl_name='scale12', in_out='in', ethernet='1/1/3', logging='enable'),
+        set_module_args(dict(ip_access_group=dict(acl_name='scale12', in_out='in', ethernet='1/1/3',mirror_port=dict(ethernet='3/1/10'),logging='enable'),
                              ipv6_access_group=dict(acl_name='scale12', in_out='in', lag='7'),
                              mac_access_group=dict(mac_acl_name='mac_acl1', vlan=dict(vlan_num='10', interfaces=['ethernet 1/1/3']), logging='enable'),
                              default_acl=dict(ip_type='ipv4',acl_name='guest', in_out='in')))
         expected_commands = [
             'interface ethernet 1/1/3',
+            'acl-mirror-port ethernet 3/1/10',
             'ip access-group scale12 in logging enable',
             'exit',
             'interface lag 7',
@@ -53,12 +54,13 @@ class TestICXAclAssignModule(TestICXModule):
        
     def test_icx_acl_assign_all_options_remove(self):
         ''' Test for removing acl assign with all options'''
-        set_module_args(dict(ip_access_group=dict(acl_name='scale12', in_out='in', ethernet='1/1/3', logging='enable', state='absent'),
+        set_module_args(dict(ip_access_group=dict(acl_name='scale12', in_out='in', ethernet='1/1/3', mirror_port=dict(ethernet='3/1/10',state='absent'), logging='enable', state='absent'),
                              ipv6_access_group=dict(acl_name='scale12', in_out='in', lag='7', state='absent'),
                              mac_access_group=dict(mac_acl_name='mac_acl1', vlan=dict(vlan_num='10', interfaces=['ethernet 1/1/3']), logging='enable', state='absent'),
                              default_acl=dict(ip_type='ipv4',acl_name='guest', in_out='in', state='absent')))
         expected_commands = [
             'interface ethernet 1/1/3',
+            'no acl-mirror-port ethernet 3/1/10',
             'no ip access-group scale12 in logging enable',
             'exit',
             'interface lag 7',
