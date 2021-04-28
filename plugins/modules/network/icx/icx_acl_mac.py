@@ -162,12 +162,8 @@ def build_command(module, acl_name=None, accounting= None, rule=None, state=None
                 cmd = "no"
                 if elements['rule_type'] is not None:
                     cmd += " {}".format(elements['rule_type'])
-                else:
-                    cmd += " {}".format(elements['rule_type'])
             else:
                 if elements['rule_type'] is not None:
-                    cmd = "{}".format(elements['rule_type'])
-                else:
                     cmd = "{}".format(elements['rule_type'])
 
             if elements['source']['source_mac_address'] is not None:
