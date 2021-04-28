@@ -35,7 +35,7 @@ options:
         required: true
         choices: ['deny', 'permit']
       source:
-        description: source_mac_address | source_mask | any 
+        description: source_mac_address | source_mask | any
         type: dict
         required: true
         suboptions:
@@ -50,7 +50,7 @@ options:
             type: bool
             default: no
       destination:
-        description: destination_mac_address destination_mask | any 
+        description: destination_mac_address destination_mask | any
         type: dict
         required: true
         suboptions:
@@ -92,7 +92,7 @@ EXAMPLES = """
     acl_name: mac123
     rule:
       - rule_type: permit
-        source: 
+        source:
           source_mac_address: 1111.2222.3333
           source_mask: ffff.ffff.ffff
           any: yes
@@ -101,7 +101,7 @@ EXAMPLES = """
           destination_mask: ffff.ffff.ffff
           any: yes
       - rule_type: permit
-        source: 
+        source:
           source_mac_address: 1111.2222.3333
           source_mask: ffff.ffff.ffff
           any: yes
@@ -111,7 +111,7 @@ EXAMPLES = """
           any: yes
         state: absent
       - rule_type: permit
-        source: 
+        source:
           source_mac_address: 1111.2222.3333
           source_mask: ffff.ffff.ffff
         destination:
@@ -120,11 +120,11 @@ EXAMPLES = """
         mirror: yes
         ether_type: 0800
 
-- name: create only mac acl 
+- name: create only mac acl
   icx_acl_mac:
     acl_name: mac123
-  register: output        
-        
+  register: output
+
 - name: remove mac acl
   icx_acl_mac:
     acl_name: mac123
@@ -134,7 +134,8 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.connection import ConnectionError, exec_command
 from ansible_collections.community.network.plugins.module_utils.network.icx.icx import load_config
 
-def build_command(module, acl_name=None, accounting= None, rule=None, state=None):
+
+def build_command(module, acl_name=None, accounting=None, rule=None, state=None):
     """
     Function to build the command to send to the terminal for the switch
     to execute. All args come from the module's unique params.
@@ -154,7 +155,6 @@ def build_command(module, acl_name=None, accounting= None, rule=None, state=None
     elif accounting == 'enable':
         cmd = "enable accounting"
         acl_cmds.append(cmd)
-    
 
     if rule is not None:
         for elements in rule:
@@ -206,9 +206,9 @@ def main():
     )
 
     rule_spec = dict(
-        rule_type=dict(type='str', choices=['deny', 'permit'],required=True),
-        source=dict(type='dict', options=source_spec,required=True),
-        destination=dict(type='dict', options=destination_spec,required=True),
+        rule_type=dict(type='str', choices=['deny', 'permit'], required=True),
+        source=dict(type='dict', options=source_spec, required=True),
+        destination=dict(type='dict', options=destination_spec, required=True),
         log=dict(type='bool', default='no'),
         mirror=dict(type='bool', default='no'),
         ether_type=dict(type='str'),
@@ -217,7 +217,7 @@ def main():
 
     argument_spec = dict(
         acl_name=dict(type='str', required=True),
-        accounting= dict(type='str', choices=['enable', 'disable']),
+        accounting=dict(type='str', choices=['enable', 'disable']),
         rule=dict(type='list', elements='dict', options=rule_spec),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
@@ -235,7 +235,6 @@ def main():
     rule = module.params["rule"]
     state = module.params["state"]
 
-
     if warnings:
         results['warnings'] = warnings
 
@@ -249,6 +248,7 @@ def main():
         results['changed'] = True
 
     module.exit_json(**results)
+
 
 if __name__ == '__main__':
     main()
