@@ -22,7 +22,8 @@ options:
     type: dict
     suboptions:
       acl_num:
-        description: Specifies an ACL number. You can specify from 1 through 99 for standard ACLs and from 100 through 199 for extended ACLs. Valid only in 8090.
+        description: Specifies an ACL number. You can specify from 1 through 99 for standard ACLs and from 100 through 199 for extended ACLs.
+                     Valid only in 8090.
         type: int
       acl_name:
         description: Specifies a valid ACL name.
@@ -45,7 +46,8 @@ options:
             description: Router interface ve
             type: int
           interfaces:
-            description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg - [ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
+            description: Applies ACL to single/range of ethernet and lag interfaces of the vlan.
+                         For eg - [ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
             elements: str
       mirror_port:
@@ -55,7 +57,7 @@ options:
           ethernet:
             description: Specifies the mirror port to which the monitored port traffic is copied.
             type: str
-          state: 
+          state:
             description: Configures/Removes the ACL mirror port.
             type: str
             default: present
@@ -99,7 +101,8 @@ options:
             description: Router interface ve
             type: int
           interfaces:
-            description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg - [ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
+            description: Applies ACL to single/range of ethernet and lag interfaces of the vlan.
+                         For eg - [ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
             elements: str
       mirror_port:
@@ -109,7 +112,7 @@ options:
           ethernet:
             description: Specifies the mirror port to which the monitored port traffic is copied.
             type: str
-          state: 
+          state:
             description: Configures/Removes the ACL mirror port.
             type: str
             default: present
@@ -145,7 +148,8 @@ options:
             description: Router interface ve
             type: int
           interfaces:
-            description: Applies ACL to single/range of ethernet and lag interfaces of the vlan. For eg-[ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
+            description: Applies ACL to single/range of ethernet and lag interfaces of the vlan.
+                         For eg-[ethernet 1/1/2, ethernet 1/1/20 to 1/1/30, lag 10, lag 10 to 20]
             type: list
             elements: str
       mirror_port:
@@ -155,7 +159,7 @@ options:
           ethernet:
             description: Specifies the mirror port to which the monitored port traffic is copied.
             type: str
-          state: 
+          state:
             description: Configures/Removes the ACL mirror port.
             type: str
             default: present
@@ -200,11 +204,11 @@ EXAMPLES = """
     ip_access_group:
       acl_name: scale12
       in_out: in
-      ethernet: 1/1/3  
+      ethernet: 1/1/3
     ipv6_access_group:
       acl_name: scale12
       in_out: in
-      ethernet: 1/1/3 
+      ethernet: 1/1/3
       logging: enable
     mac_access_group:
       mac_acl_name: mac_acl
@@ -216,16 +220,16 @@ EXAMPLES = """
     ip_access_group:
       acl_name: scale12
       in_out: in
-      lag: 3   
+      lag: 3
     ipv6_access_group:
       acl_name: scale12
       in_out: in
       lag: 3
-      logging: enable 
+      logging: enable
     mac_access_group:
       mac_acl_name: mac_acl
       lag: 3
-      logging: disable 
+      logging: disable
   register: output
 
 - name: ipv4,ipv6,MAC ACLs assign to vlan interfaces
@@ -234,7 +238,7 @@ EXAMPLES = """
       acl_name: scale12
       in_out: in
       vlan:
-        vlan_num: 10  
+        vlan_num: 10
     ipv6_access_group:
       acl_name: scale12
       in_out: in
@@ -245,7 +249,7 @@ EXAMPLES = """
       mac_acl_name: mac_acl
       vlan:
         vlan_num: 20
-  register: output 
+  register: output
 
 - name: Each acl assigned to same vlan, but different ethernet and lag of the vlan
   community.network.icx_acl_assign:
@@ -269,7 +273,7 @@ EXAMPLES = """
       vlan:
         vlan_num: 555
         interfaces:
-          - ethernet 1/1/15 to 1/1/16  
+          - ethernet 1/1/15 to 1/1/16
     default_acl:
       ip_type: ipv4
       acl_id: 10
@@ -286,7 +290,6 @@ from ansible.module_utils.connection import ConnectionError, exec_command
 from ansible_collections.community.network.plugins.module_utils.network.icx.icx import load_config
 
 
-cmds = []
 def build_command(
         module, ip_access_group=None, ipv6_access_group=None,
         mac_access_group=None, default_acl=None):
@@ -294,6 +297,7 @@ def build_command(
     Function to build the command to send to the terminal for the switch
     to execute. All args come from the module's unique params.
     """
+    cmds = []
     if ip_access_group is not None:
         if ip_access_group['ethernet'] is not None:
             cmd = "interface ethernet {}".format(ip_access_group['ethernet'])
@@ -302,7 +306,7 @@ def build_command(
                 if ip_access_group['mirror_port']['state'] == 'absent':
                     cmd = "no acl-mirror-port ethernet {}".format(ip_access_group['mirror_port']['ethernet'])
                 else:
-                    cmd = "acl-mirror-port ethernet {}".format(ip_access_group['mirror_port']['ethernet']) 
+                    cmd = "acl-mirror-port ethernet {}".format(ip_access_group['mirror_port']['ethernet'])
                 cmds.append(cmd)
 
         elif ip_access_group['lag'] is not None:
@@ -346,7 +350,6 @@ def build_command(
         cmds.append(cmd)
         cmds.append('exit')
 
-
     if ipv6_access_group is not None:
         if ipv6_access_group['ethernet'] is not None:
             cmd = "interface ethernet {}".format(ipv6_access_group['ethernet'])
@@ -355,7 +358,7 @@ def build_command(
                 if ipv6_access_group['mirror_port']['state'] == 'absent':
                     cmd = "no acl-mirror-port ethernet {}".format(ipv6_access_group['mirror_port']['ethernet'])
                 else:
-                    cmd = "acl-mirror-port ethernet {}".format(ipv6_access_group['mirror_port']['ethernet']) 
+                    cmd = "acl-mirror-port ethernet {}".format(ipv6_access_group['mirror_port']['ethernet'])
                 cmds.append(cmd)
 
         elif ipv6_access_group['lag'] is not None:
@@ -393,7 +396,7 @@ def build_command(
                 if mac_access_group['mirror_port']['state'] == 'absent':
                     cmd = "no acl-mirror-port ethernet {}".format(mac_access_group['mirror_port']['ethernet'])
                 else:
-                    cmd = "acl-mirror-port ethernet {}".format(mac_access_group['mirror_port']['ethernet']) 
+                    cmd = "acl-mirror-port ethernet {}".format(mac_access_group['mirror_port']['ethernet'])
                 cmds.append(cmd)
         elif mac_access_group['lag'] is not None:
             cmd = "interface lag {}".format(mac_access_group['lag'])
@@ -438,9 +441,6 @@ def build_command(
     return cmds
 
 
-
-
-
 def main():
     """entry point for module execution
     """
@@ -459,7 +459,7 @@ def main():
         ethernet=dict(type='str'),
         lag=dict(type='int'),
         vlan=dict(type='dict', options=vlan_spec),
-        mirror_port = dict(type='dict', options= mirror_port_spec),
+        mirror_port=dict(type='dict', options=mirror_port_spec),
         logging=dict(type='str', choices=['enable', 'disable']),
         frag_deny=dict(type='bool', default='no'),
         state=dict(type='str', default='present', choices=['present', 'absent'])
@@ -471,7 +471,7 @@ def main():
         ethernet=dict(type='str'),
         lag=dict(type='int'),
         vlan=dict(type='dict', options=vlan_spec),
-        mirror_port = dict(type='dict', options= mirror_port_spec),
+        mirror_port=dict(type='dict', options=mirror_port_spec),
         logging=dict(type='str', choices=['enable', 'disable']),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
@@ -481,7 +481,7 @@ def main():
         ethernet=dict(type='str'),
         lag=dict(type='int'),
         vlan=dict(type='dict', options=vlan_spec),
-        mirror_port = dict(type='dict', options= mirror_port_spec),
+        mirror_port=dict(type='dict', options=mirror_port_spec),
         logging=dict(type='str', choices=['enable', 'disable']),
         state=dict(type='str', default='present', choices=['present', 'absent'])
     )
@@ -497,7 +497,7 @@ def main():
     required_one_of = [['acl_name', 'acl_num', 'frag_deny']]
     mutually_exclusive = [('acl_name', 'frag_deny'), ('acl_num', 'frag_deny'), ('acl_name', 'acl_num')]
     argument_spec = dict(
-        ip_access_group=dict(type='dict', options=ip_access_group_spec, required_one_of=required_one_of, mutually_exclusive = mutually_exclusive),
+        ip_access_group=dict(type='dict', options=ip_access_group_spec, required_one_of=required_one_of, mutually_exclusive=mutually_exclusive),
         ipv6_access_group=dict(type='dict', options=ipv6_access_group_spec),
         mac_access_group=dict(type='dict', options=mac_access_group_spec),
         default_acl=dict(type='dict', options=default_acl_spec)
@@ -518,18 +518,17 @@ def main():
 
     commands = build_command(
         module, ip_access_group, ipv6_access_group,
-        mac_access_group, default_acl
-        )
+        mac_access_group, default_acl)
     results['commands'] = commands
 
     if commands:
         if not module.check_mode:
             response = load_config(module, commands)
 
-
         results['changed'] = True
 
     module.exit_json(**results)
+
 
 if __name__ == '__main__':
     main()
